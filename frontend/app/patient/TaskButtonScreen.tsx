@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Link } from "expo-router"; // Импортируем компонент для навигации
 import { ActionButton } from "@/components/ActionButton";
+import { View } from "react-native";
 
 
 export default function ButtonPage() {
@@ -9,11 +10,9 @@ export default function ButtonPage() {
   };
 
   return (
-    <div className="button-page">
-      <h1>Страница с кнопкой</h1>
-      <ActionButton label="Нажать" onClick={handleClick} />
-      <br />
+    <View>
+      <ActionButton label="Нажать" />
       <Link href="/">Перейти на главную</Link> {/* Ссылка на главную страницу */}
-    </div>
+    </View>
   );
 }
