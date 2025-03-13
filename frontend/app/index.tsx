@@ -19,7 +19,7 @@ export default function Index() {
 	  <Text>Главная страница</Text>
 
 	  {/* Кнопки */}
-	  <Button title="Пациент -> Кнопка" onPress={() => router.push("patient/TaskButtonScreen")} />
+	  <Button title="Пациент -> Кнопка" onPress={() => router.push("/patient/TaskButtonScreen")} />
     </View>
   );
 }

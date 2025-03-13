@@ -1,9 +1,6 @@
-import * as React from "react";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Easing } from "react-native";
 import { Colors } from "@/constants/Colors";
-import { RFValue } from "react-native-responsive-fontsize";
-
-import { View, Text, StyleSheet } from "react-native";
-import { rgbaColor } from "react-native-reanimated/lib/typescript/Colors";
 
 interface ActionButtonProps {
   label: string;
@@ -11,20 +8,62 @@ interface ActionButtonProps {
 }
 
 export const ActionButton: React.FC<ActionButtonProps> = ({ label, onClick }) => {
+  const [positionAnimation] = useState(new Animated.Value(0));
+
+  const handlePress = () => {
+    Animated.sequence([
+      Animated.timing(positionAnimation, {
+        toValue: 4,
+        duration: 120,
+        easing: Easing.out(Easing.linear),
+        useNativeDriver: true,
+      }),
+      Animated.timing(positionAnimation, {
+        toValue: 0,
+        duration: 120,
+        easing: Easing.out(Easing.linear),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
   return (
-    <View style={styles.button} onTouchEnd={onClick}>
-      <View style={styles.beforeElement} />
-      <Text style={styles.text}>{label}</Text>
-    </View>
+    <Animated.View
+      style={[
+        styles.animatedButton,
+        {
+          transform: [{ translateY: positionAnimation }],
+        },
+      ]}
+    >
+      <TouchableOpacity
+        style={styles.button}
+        onPress={onClick}
+        onPressIn={handlePress} // Запускаем анимацию сразу
+        activeOpacity={1}
+      >
+        <View style={styles.container}>
+          <View style={styles.beforeElement}></View>
+          <Text style={styles.text}>{label}</Text>
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
+  animatedButton: {
+    width: 195,
+    height: 195,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+  },
   button: {
     width: 195,
     height: 195,
     backgroundColor: Colors.primary,
-    borderRadius: 100,
+    borderRadius: 97.5,
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
@@ -37,12 +76,17 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: Colors.primary,
   },
+  container: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+    height: "100%",
+  },
   beforeElement: {
     position: "absolute",
     width: "100%",
     height: "100%",
-    backgroundColor: "none",
-    borderRadius: 100,
+    borderRadius: 97.5,
     borderStyle: "solid",
     borderWidth: 1,
     borderColor: Colors.secondary,
