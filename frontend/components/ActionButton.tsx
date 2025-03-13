@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Animated, Easing } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+  Easing,
+} from "react-native";
 import { Colors } from "@/constants/Colors";
 
 interface ActionButtonProps {
@@ -7,7 +14,10 @@ interface ActionButtonProps {
   onClick?: () => void;
 }
 
-export const ActionButton: React.FC<ActionButtonProps> = ({ label, onClick }) => {
+export const ActionButton: React.FC<ActionButtonProps> = ({
+  label,
+  onClick,
+}) => {
   const [positionAnimation] = useState(new Animated.Value(0));
 
   const handlePress = () => {
@@ -68,9 +78,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     position: "relative",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
+    boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.2)",
     elevation: 5,
     borderStyle: "solid",
     borderWidth: 3,
