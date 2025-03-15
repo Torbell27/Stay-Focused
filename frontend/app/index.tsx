@@ -47,7 +47,6 @@ export default function App() {
       <Text>ADHD Support App</Text>
       <Text>👋</Text>
 
-      {/* Кнопки */}
       <Button
         title="Страница авторизации"
         onPress={() => router.push("/authorize")}
@@ -80,10 +79,6 @@ export default function App() {
         title="Окно с кнопкой для пациента"
         onPress={() => router.push("/patient/TaskButtonScreen")}
       />
-	  <Text>Главная страница</Text>
-
-	  {/* Кнопки */}
-	  <Button title="Пациент -> Кнопка" onPress={() => router.push("/patient/TaskButtonScreen")} />
     </View>
   );
 }
