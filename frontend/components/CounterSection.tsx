@@ -1,32 +1,55 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  TextInput,
+} from "react-native";
 
 interface CounterProps {
   label: string;
   value: number;
-  onIncrement: () => void;
-  onDecrement: () => void;
+  onSeriesChange: (value: number) => void;
+  difficulty: string;
 }
 
 const Counter: React.FC<CounterProps> = ({
   label,
   value,
-  onIncrement,
-  onDecrement,
+  onSeriesChange,
+  difficulty,
 }) => {
   return (
     <View style={stylesCounter.container}>
-      <Text style={stylesCounter.label}>{label}</Text>
+      {difficulty == "complex" && (
+        <Text style={stylesCounter.label}>{label}</Text>
+      )}
       <View style={stylesCounter.counterContainer}>
-        <TouchableOpacity style={stylesCounter.button} onPress={onDecrement}>
+        <TouchableOpacity
+          activeOpacity={1}
+          style={stylesCounter.button}
+          onPress={() => onSeriesChange(Math.max(1, value - 1))}
+        >
           <Text style={stylesCounter.buttonText}>-</Text>
         </TouchableOpacity>
 
         <View style={stylesCounter.valueContainer}>
-          <Text style={stylesCounter.value}>{value}</Text>
+          <TextInput
+            maxLength={3}
+            keyboardType="numeric"
+            style={stylesCounter.value}
+            onChangeText={(e) => onSeriesChange(e ? parseInt(e) : 1)}
+          >
+            {value}
+          </TextInput>
         </View>
 
-        <TouchableOpacity style={stylesCounter.button} onPress={onIncrement}>
+        <TouchableOpacity
+          activeOpacity={1}
+          style={stylesCounter.button}
+          onPress={() => onSeriesChange(value + 1)}
+        >
           <Text style={stylesCounter.buttonText}>+</Text>
         </TouchableOpacity>
       </View>
@@ -48,34 +71,37 @@ const stylesCounter = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
     backgroundColor: "#ffffff",
     borderRadius: 8,
-    borderWidth: 1,
+    borderWidth: 2,
     borderStyle: "solid",
     borderColor: "#E5E7EB",
-    padding: 8,
   },
   button: {
     width: 32,
-    height: 32,
+    height: "auto",
     backgroundColor: "#F9FAFB",
-    borderRadius: 4,
+    borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
+    textAlign: "center",
   },
   buttonText: {
     color: "#6B7280",
-    fontSize: 20,
+    fontSize: 28,
+    fontFamily: "Montserrat-Bold",
   },
   valueContainer: {
     flex: 1,
     alignItems: "center",
+    width: 9999,
+    overflow: "hidden",
   },
   value: {
     fontSize: 16,
     color: "#111827",
     textAlign: "center",
+    width: 9999,
   },
 });
 
@@ -84,6 +110,7 @@ interface CounterSectionProps {
   secondSeriesCount: number;
   onFirstSeriesChange: (value: number) => void;
   onSecondSeriesChange: (value: number) => void;
+  difficulty: string;
 }
 
 const CounterSection: React.FC<CounterSectionProps> = ({
@@ -91,6 +118,7 @@ const CounterSection: React.FC<CounterSectionProps> = ({
   secondSeriesCount,
   onFirstSeriesChange,
   onSecondSeriesChange,
+  difficulty,
 }) => {
   return (
     <View style={styles.container}>
@@ -100,20 +128,18 @@ const CounterSection: React.FC<CounterSectionProps> = ({
         <Counter
           label="Первая серия"
           value={firstSeriesCount}
-          onIncrement={() => onFirstSeriesChange(firstSeriesCount + 1)}
-          onDecrement={() =>
-            onFirstSeriesChange(Math.max(1, firstSeriesCount - 1))
-          }
+          onSeriesChange={onFirstSeriesChange}
+          difficulty={difficulty}
         />
 
-        <Counter
-          label="Вторая серия"
-          value={secondSeriesCount}
-          onIncrement={() => onSecondSeriesChange(secondSeriesCount + 1)}
-          onDecrement={() =>
-            onSecondSeriesChange(Math.max(1, secondSeriesCount - 1))
-          }
-        />
+        {difficulty == "complex" && (
+          <Counter
+            label="Вторая серия"
+            value={secondSeriesCount}
+            onSeriesChange={onSecondSeriesChange}
+            difficulty={difficulty}
+          />
+        )}
       </View>
     </View>
   );
@@ -128,7 +154,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     color: "#49535C",
-    fontFamily: "Montserrat-SemiBold,sans-serif",
+    fontFamily: "Montserrat-SemiBold",
   },
   countersContainer: {
     display: "flex",

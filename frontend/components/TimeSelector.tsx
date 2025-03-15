@@ -44,6 +44,7 @@ const TimeSelector: React.FC<TimeSelectorProps> = ({
       keyExtractor={(time) => time}
       renderItem={({ item }) => (
         <TouchableOpacity
+          activeOpacity={1}
           key={item}
           style={[
             styles.timeOption,
