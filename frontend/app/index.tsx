@@ -47,38 +47,40 @@ export default function App() {
       <Text>ADHD Support App</Text>
       <Text>👋</Text>
 
-      <Button
-        title="Страница авторизации"
-        onPress={() => router.push("/authorize")}
-      />
-      <Button
-        title="Регистрация пациента/ребёнка"
-        onPress={() => router.push("/doctor/PatientRegistration")}
-      />
-      <Button
-        title="Главная страница врача-родителя"
-        onPress={() => router.push("/doctor/PatientList")}
-      />
-      <Button
-        title="Карточка пациента-ребенка"
-        onPress={() => router.push("/doctor/PatientInfo")}
-      />
-      <Button
-        title="Статистика пациента-ребёнка"
-        onPress={() => router.push("/doctor/StatisticsScreen")}
-      />
-      <Button
-        title="Редактирование задания"
-        onPress={() => router.push("/doctor/TaskSettings")}
-      />
-      <Button
-        title="Окно с описанием заданий для пациента"
-        onPress={() => router.push("/patient/TaskInfoScreen")}
-      />
-      <Button
-        title="Окно с кнопкой для пациента"
-        onPress={() => router.push("/patient/TaskButtonScreen")}
-      />
+      <View style={{ gap: 12 }}>
+        <Button
+          title="Страница авторизации"
+          onPress={() => router.push("/authorize")}
+        />
+        <Button
+          title="Регистрация пациента / ребёнка"
+          onPress={() => router.push("/doctor/PatientRegistration")}
+        />
+        <Button
+          title="Главная страница врача / родителя"
+          onPress={() => router.push("/doctor/PatientList")}
+        />
+        <Button
+          title="Карточка пациента / ребёнка"
+          onPress={() => router.push("/doctor/PatientInfo")}
+        />
+        <Button
+          title="Статистика пациента / ребёнка"
+          onPress={() => router.push("/doctor/StatisticsScreen")}
+        />
+        <Button
+          title="Редактирование задания для пациента / ребёнка"
+          onPress={() => router.push("/doctor/TaskSettings")}
+        />
+        <Button
+          title="Окно с описанием заданий для пациента / ребёнка"
+          onPress={() => router.push("/patient/TaskInfoScreen")}
+        />
+        <Button
+          title="Окно с кнопкой для пациента / ребёнка"
+          onPress={() => router.push("/patient/TaskButtonScreen")}
+        />
+      </View>
     </View>
   );
 }

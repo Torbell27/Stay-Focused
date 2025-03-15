@@ -5,9 +5,13 @@ import DifficultySelector from "@/components/DifficultySelector";
 import TimeSelector from "@/components/TimeSelector";
 import CounterSection from "@/components/CounterSection";
 import FooterButton from "@/components/FooterButton";
+import Footer from "@/components/Footer";
 import { Colors } from "@/constants/Colors";
+import { useRouter } from "expo-router";
 
 const TaskSettings = () => {
+  const router = useRouter();
+
   const [difficulty, setDifficulty] = useState<"simple" | "complex">("simple");
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
   const [firstSeriesCount, setFirstSeriesCount] = useState(10);
@@ -15,18 +19,18 @@ const TaskSettings = () => {
   const [headerUserName, setHeaderUserName] = useState("Смирнова Н. В.");
 
   const handleSave = () => {
-    // Handle save functionality
     console.log({
       difficulty,
       selectedTimes,
       firstSeriesCount,
       secondSeriesCount,
     });
+    router.back();
   };
 
   return (
     <View style={styles.container}>
-      <Header userName={headerUserName} isPatient={true} />
+      <Header title={headerUserName} />
 
       <View style={styles.content}>
         <DifficultySelector
@@ -54,7 +58,11 @@ const TaskSettings = () => {
         />
       </View>
 
-      <FooterButton onPress={handleSave} label="Сохранить" />
+      <Footer
+        components={[
+          <FooterButton onPress={handleSave} label="Сохранить" key="1" />,
+        ]}
+      ></Footer>
     </View>
   );
 };
@@ -65,7 +73,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     backgroundColor: Colors.backgroundScreen,
     flex: 1,
-    fontFamily: "Montserrat-Regular,sans-serif",
+    fontFamily: "Montserrat-Regular",
   },
   content: {
     display: "flex",
