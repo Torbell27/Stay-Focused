@@ -24,6 +24,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: "#E5E7EB",
     marginTop: "auto",
+    boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.2)",
   },
   button: {
     width: "100%",

@@ -12,6 +12,7 @@ const TaskSettings = () => {
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
   const [firstSeriesCount, setFirstSeriesCount] = useState(10);
   const [secondSeriesCount, setSecondSeriesCount] = useState(12);
+  const [headerUserName, setHeaderUserName] = useState("Смирнова Н. В.");
 
   const handleSave = () => {
     // Handle save functionality
@@ -25,7 +26,7 @@ const TaskSettings = () => {
 
   return (
     <View style={styles.container}>
-      <Header userName="Смирнова Н. В." isPatient={true} />
+      <Header userName={headerUserName} isPatient={true} />
 
       <View style={styles.content}>
         <DifficultySelector
@@ -49,6 +50,7 @@ const TaskSettings = () => {
           secondSeriesCount={secondSeriesCount}
           onFirstSeriesChange={setFirstSeriesCount}
           onSecondSeriesChange={setSecondSeriesCount}
+          difficulty={difficulty}
         />
       </View>
 

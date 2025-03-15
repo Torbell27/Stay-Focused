@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 24,
     color: Colors.headerText,
-    fontFamily: "Montserrat-SemiBold,sans-serif",
+    fontFamily: "Montserrat-SemiBold",
   },
 });
 
