@@ -47,10 +47,7 @@ export default function App() {
       <Text>ADHD Support App</Text>
       <Text>👋</Text>
 
-<<<<<<< HEAD
       {/* Кнопки */}
-=======
->>>>>>> c01e196b23d173703651c2522dd8d13bc5ce7339
       <Button
         title="Страница авторизации"
         onPress={() => router.push("/authorize")}
@@ -83,14 +80,10 @@ export default function App() {
         title="Окно с кнопкой для пациента"
         onPress={() => router.push("/patient/TaskButtonScreen")}
       />
-<<<<<<< HEAD
-=======
 	  <Text>Главная страница</Text>
 
 	  {/* Кнопки */}
 	  <Button title="Пациент -> Кнопка" onPress={() => router.push("/patient/TaskButtonScreen")} />
-=======
->>>>>>> c01e196b23d173703651c2522dd8d13bc5ce7339
     </View>
   );
 }
