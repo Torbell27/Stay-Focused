@@ -52,12 +52,8 @@ export default function App() {
         onPress={() => router.push("/authorize")}
       />
       <Button
-        title="Регистрация пациента/ребёнка"
-        onPress={() => router.push("/doctor/PatientRegistration")}
-      />
-      <Button
         title="Главная страница врача-родителя"
-        onPress={() => router.push("/doctor/PatientList")}
+        onPress={() => router.push("/doctor/DoctorMain")}
       />
       <Button
         title="Карточка пациента-ребенка"
