@@ -16,6 +16,7 @@ const DifficultySelector: React.FC<DifficultySelectorProps> = ({
       <Text style={styles.label}>Уровень сложности</Text>
       <View style={styles.options}>
         <TouchableOpacity
+          activeOpacity={1}
           style={[
             styles.option,
             selectedDifficulty === "simple"
@@ -36,6 +37,7 @@ const DifficultySelector: React.FC<DifficultySelectorProps> = ({
         </TouchableOpacity>
 
         <TouchableOpacity
+          activeOpacity={1}
           style={[
             styles.option,
             selectedDifficulty === "complex"
@@ -69,12 +71,11 @@ const styles = StyleSheet.create({
     margin: "auto",
     fontSize: 16,
     color: "#49535C",
-    fontFamily: "Montserrat-SemiBold,sans-serif",
+    fontFamily: "Montserrat-SemiBold",
   },
   options: {
     display: "flex",
     flexDirection: "row",
-    gap: 8,
     backgroundColor: "#EFF1F5",
   },
   option: {
@@ -90,18 +91,15 @@ const styles = StyleSheet.create({
   },
   unselectedOption: {
     backgroundColor: "#EFF1F5",
-    borderWidth: 1,
-    borderStyle: "solid",
-    borderColor: "#E5E7EB",
   },
   selectedText: {
     color: "#49535C",
-    fontFamily: "Montserrat-SemiBold,sans-serif",
+    fontFamily: "Montserrat-SemiBold",
     fontSize: 13,
   },
   unselectedText: {
     color: Colors.main,
-    fontFamily: "Montserrat-SemiBold,sans-serif",
+    fontFamily: "Montserrat-SemiBold",
     fontSize: 13,
   },
 });
