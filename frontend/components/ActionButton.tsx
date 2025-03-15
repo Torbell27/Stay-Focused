@@ -1,16 +1,5 @@
 import React, { useState } from "react";
-<<<<<<< HEAD
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Animated,
-  Easing,
-} from "react-native";
-=======
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Easing } from "react-native";
->>>>>>> e5c067c (Кнопку исправил + починил пути + убрал html)
 import { Colors } from "@/constants/Colors";
 
 interface ActionButtonProps {
@@ -18,14 +7,7 @@ interface ActionButtonProps {
   onClick?: () => void;
 }
 
-<<<<<<< HEAD
-export const ActionButton: React.FC<ActionButtonProps> = ({
-  label,
-  onClick,
-}) => {
-=======
 export const ActionButton: React.FC<ActionButtonProps> = ({ label, onClick }) => {
->>>>>>> e5c067c (Кнопку исправил + починил пути + убрал html)
   const [positionAnimation] = useState(new Animated.Value(0));
 
   const handlePress = () => {

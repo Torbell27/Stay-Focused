@@ -16,7 +16,6 @@ export default function Index() {
       <Text>👋</Text>
       <Text>Главная страница</Text>
 
-<<<<<<< HEAD
       {/* Кнопки */}
       <Button
         title="Страница авторизации"
@@ -55,7 +54,6 @@ export default function Index() {
 
 	  {/* Кнопки */}
 	  <Button title="Пациент -> Кнопка" onPress={() => router.push("/patient/TaskButtonScreen")} />
->>>>>>> e5c067c (Кнопку исправил + починил пути + убрал html)
     </View>
   );
 }
