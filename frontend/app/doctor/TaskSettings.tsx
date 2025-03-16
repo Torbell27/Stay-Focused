@@ -1,22 +1,23 @@
 import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import Header from "@/components/Header";
-import DifficultySelector from "@/components/DifficultySelector";
-import TimeSelector from "@/components/TimeSelector";
-import CounterSection from "@/components/CounterSection";
+import TimeSelector from "@/components/TaskSettings/TimeSelector";
+import CounterSection from "@/components/TaskSettings/CounterSection";
 import FooterButton from "@/components/FooterButton";
 import Footer from "@/components/Footer";
 import { Colors } from "@/constants/Colors";
 import { useRouter } from "expo-router";
+import Selector from "@/components/Selector";
 
 const TaskSettings = () => {
   const router = useRouter();
 
-  const [difficulty, setDifficulty] = useState<"simple" | "complex">("simple");
+  const [difficulty, setDifficulty] = useState<string>("simple");
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
-  const [firstSeriesCount, setFirstSeriesCount] = useState(10);
-  const [secondSeriesCount, setSecondSeriesCount] = useState(12);
-  const [headerUserName, setHeaderUserName] = useState("Смирнова Н. В.");
+  const [firstSeriesCount, setFirstSeriesCount] = useState<number>(10);
+  const [secondSeriesCount, setSecondSeriesCount] = useState<number>(12);
+  const [headerUserName, setHeaderUserName] =
+    useState<string>("Смирнова Н. В.");
 
   const handleSave = () => {
     console.log({
@@ -33,9 +34,11 @@ const TaskSettings = () => {
       <Header title={headerUserName} />
 
       <View style={styles.content}>
-        <DifficultySelector
-          selectedDifficulty={difficulty}
-          onSelectDifficulty={setDifficulty}
+        <Selector
+          selected={difficulty}
+          onSelect={setDifficulty}
+          mainLabel="Уровень сложности"
+          keys={{ simple: "Простой", complex: "Сложный" }}
         />
 
         <TimeSelector

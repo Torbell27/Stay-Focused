@@ -1,57 +1,46 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Text, TouchableOpacity, StyleSheet, View } from "react-native";
 import { Colors } from "@/constants/Colors";
 
 interface SelectorProps {
-  selected: 0 | 1;
-  onSelect: (type: 0 | 1) => void;
-  label?: string;
-  firstLabel?: string;
-  secondLabel?: string;
-  showLabel?: boolean;
+  selected: string;
+  onSelect: (type: string) => void;
+  mainLabel?: string;
+  keys?: Record<string, string>;
   buttonHeight?: number;
 }
 
 const Selector: React.FC<SelectorProps> = ({
   selected,
   onSelect,
-  label = "Label",
-  firstLabel = "0",
-  secondLabel = "1",
-  showLabel = true,
+  mainLabel = "",
+  keys = { "1": "1", "2": "2" },
   buttonHeight = 0,
 }) => {
   return (
     <View style={styles.container}>
-      {showLabel && <Text style={styles.label}>{label}</Text>}
-      <View style={[styles.options, !showLabel && styles.compactOptions]}>
-        <TouchableOpacity
-          activeOpacity={1}
-          style={[
-            styles.option,
-            selected === 0 ? styles.selectedOption : styles.unselectedOption,
-            { minHeight: buttonHeight },
-          ]}
-          onPress={() => onSelect(0)}
-        >
-          <Text style={selected === 0 ? styles.selectedText : styles.unselectedText}>
-            {firstLabel}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          activeOpacity={1}
-          style={[
-            styles.option,
-            selected === 1 ? styles.selectedOption : styles.unselectedOption,
-            { minHeight: buttonHeight },
-          ]}
-          onPress={() => onSelect(1)}
-        >
-          <Text style={selected === 1 ? styles.selectedText : styles.unselectedText}>
-            {secondLabel}
-          </Text>
-        </TouchableOpacity>
+      <>{mainLabel && <Text style={styles.label}>{mainLabel}</Text>}</>
+      <View style={[styles.options, !mainLabel && styles.compactOptions]}>
+        {Object.entries(keys).map(([k, v]) => (
+          <TouchableOpacity
+            key={k}
+            activeOpacity={0.8}
+            style={[
+              styles.option,
+              selected === k ? styles.selectedOption : styles.unselectedOption,
+              { minHeight: buttonHeight },
+            ]}
+            onPress={() => onSelect(k)}
+          >
+            <Text
+              style={
+                selected === k ? styles.selectedText : styles.unselectedText
+              }
+            >
+              {v}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
     </View>
   );
