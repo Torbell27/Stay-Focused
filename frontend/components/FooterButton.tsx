@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingTop: 12,
     paddingBottom: 12,
-    backgroundColor: Colors.footerButton,
+    backgroundColor: Colors.main,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
