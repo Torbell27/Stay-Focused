@@ -1,5 +1,12 @@
-import React from "react";
-import { Text, TouchableOpacity, StyleSheet, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  View,
+  Animated,
+  LayoutChangeEvent,
+} from "react-native";
 import { Colors } from "@/constants/Colors";
 
 interface SelectorProps {
@@ -17,20 +24,47 @@ const Selector: React.FC<SelectorProps> = ({
   keys = { "1": "1", "2": "2" },
   buttonHeight = 0,
 }) => {
+  const animatedValue = useRef(new Animated.Value(0)).current;
+  const [widths, setWidths] = useState<Record<string, number>>({});
+  const [offsets, setOffsets] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    if (selected in offsets) {
+      Animated.spring(animatedValue, {
+        toValue: offsets[selected] || 0,
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [selected, offsets]);
+
+  const handleLayout = (event: LayoutChangeEvent, key: string) => {
+    const { width, x } = event.nativeEvent.layout;
+    setWidths((prev) => ({ ...prev, [key]: width }));
+    setOffsets((prev) => ({ ...prev, [key]: x }));
+  };
+
   return (
     <View style={styles.container}>
       <>{mainLabel && <Text style={styles.label}>{mainLabel}</Text>}</>
       <View style={[styles.options, !mainLabel && styles.compactOptions]}>
+        {selected in widths && (
+          <Animated.View
+            style={[
+              styles.cursor,
+              {
+                width: widths[selected] || 0,
+                transform: [{ translateX: animatedValue }],
+              },
+            ]}
+          />
+        )}
         {Object.entries(keys).map(([k, v]) => (
           <TouchableOpacity
             key={k}
             activeOpacity={0.8}
-            style={[
-              styles.option,
-              selected === k ? styles.selectedOption : styles.unselectedOption,
-              { minHeight: buttonHeight },
-            ]}
+            style={[styles.option, { minHeight: buttonHeight }]}
             onPress={() => onSelect(k)}
+            onLayout={(event) => handleLayout(event, k)}
           >
             <Text
               style={
@@ -62,6 +96,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#EFF1F5",
     borderRadius: 20,
     minWidth: 100,
+    position: "relative",
   },
   compactOptions: {
     alignSelf: "flex-start",
@@ -72,15 +107,16 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 8,
     borderRadius: 20,
-    minWidth: 40,
     alignItems: "center",
     justifyContent: "center",
+    zIndex: 1,
   },
-  selectedOption: {
+  cursor: {
+    position: "absolute",
+    height: "100%",
     backgroundColor: "#ffffff",
-  },
-  unselectedOption: {
-    backgroundColor: "#EFF1F5",
+    borderRadius: 20,
+    boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.1)",
   },
   selectedText: {
     color: "#49535C",
