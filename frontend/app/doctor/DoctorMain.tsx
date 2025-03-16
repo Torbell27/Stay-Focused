@@ -5,7 +5,9 @@ import RegistrationForm from "@/components/DoctorMain/RegistrationForm";
 import PatientList from "@/components/DoctorMain/PatientList";
 import Selector from "@/components/Selector";
 import FooterButton from "@/components/FooterButton";
+import Footer from "@/components/Footer";
 import { Colors } from "@/constants/Colors";
+import { useRouter } from "expo-router";
 
 type RegistrationData = {
     firstName: string; 
@@ -17,6 +19,7 @@ type RegistrationData = {
 };
 
 const DoctorMain: React.FC = () => {
+    const router = useRouter(); 
     const [headerUserName, setHeaderUserName] = useState("Иванова И. И."); 
     const [selc, setSelc] = useState<0 | 1>(0);
     const [registrationData, setRegistrationData] = useState<RegistrationData>({
@@ -36,32 +39,40 @@ const DoctorMain: React.FC = () => {
         setRegistrationData(data); 
     };
 
+    const handleLogout = () => {
+        router.back(); 
+    };
+
     return (
         <View style={styles.container}>
-            <Header userName={headerUserName} isPatient={true} />
+            <Header title={headerUserName} createBackButton={false} logoutFunc={handleLogout} />
 
             <View style={styles.content}>
                 <Selector 
                     selected={selc}
                     onSelect={setSelc}
-                    firstLabel = "Регистрация пациента"
-                    secondLabel = "Список пациентов"
+                    firstLabel = "Список пациентов"
+                    secondLabel = "Регистрация пациента"
                     showLabel = {false}
                     buttonHeight={50}
                 />
             </View>
 
             {selc === 0 && (
-                <>
-                    <RegistrationForm onFormChange={handleFormChange} />
-                    <FooterButton onPress={handleRegister} label="Зарегистрировать" />
-                </>
+               <View style={styles.list}>
+                    <PatientList/>
+               </View> 
             )}
 
             {selc === 1 && (
-                <View style={styles.list}>
-                    <PatientList/>
-                </View>
+                <> 
+                 <RegistrationForm onFormChange={handleFormChange} />
+                    <Footer
+                        components={[
+                        <FooterButton onPress={handleRegister} label="Зарегистрировать" key="1" />,
+                        ]}>
+                   </Footer> 
+                </>
             )}
         </View>
     );
