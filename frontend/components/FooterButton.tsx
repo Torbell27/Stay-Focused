@@ -1,6 +1,6 @@
 import { Colors } from "@/constants/Colors";
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Text, TouchableOpacity, StyleSheet } from "react-native";
 
 interface FooterButtonProps {
   onPress: () => void;
@@ -9,23 +9,17 @@ interface FooterButtonProps {
 
 const FooterButton: React.FC<FooterButtonProps> = ({ onPress, label }) => {
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={onPress}>
-        <Text style={styles.buttonText}>{label}</Text>
-      </TouchableOpacity>
-    </View>
+    <TouchableOpacity
+      activeOpacity={0.9}
+      style={styles.button}
+      onPress={onPress}
+    >
+      <Text style={styles.buttonText}>{label}</Text>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    backgroundColor: "#ffffff",
-    borderTopWidth: 1,
-    borderColor: "#E5E7EB",
-    marginTop: "auto",
-    boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.2)",
-  },
   button: {
     width: "100%",
     paddingTop: 12,
@@ -37,8 +31,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#ffffff",
-    fontSize: 14,
-    fontFamily: "Montserrat-SemiBold,sans-serif",
+    fontSize: 16,
+    fontFamily: "Montserrat-SemiBold",
   },
 });
 

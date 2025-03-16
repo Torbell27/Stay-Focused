@@ -27,7 +27,7 @@ const Counter: React.FC<CounterProps> = ({
       )}
       <View style={stylesCounter.counterContainer}>
         <TouchableOpacity
-          activeOpacity={1}
+          activeOpacity={0.9}
           style={stylesCounter.button}
           onPress={() => onSeriesChange(Math.max(1, value - 1))}
         >
@@ -37,18 +37,19 @@ const Counter: React.FC<CounterProps> = ({
         <View style={stylesCounter.valueContainer}>
           <TextInput
             maxLength={3}
+            defaultValue={value.toString()}
             keyboardType="numeric"
             style={stylesCounter.value}
-            onChangeText={(e) => onSeriesChange(e ? parseInt(e) : 1)}
-          >
-            {value}
-          </TextInput>
+            onChangeText={(e) => {
+              if (e && parseInt(e)) onSeriesChange(parseInt(e));
+            }}
+          ></TextInput>
         </View>
 
         <TouchableOpacity
-          activeOpacity={1}
+          activeOpacity={0.9}
           style={stylesCounter.button}
-          onPress={() => onSeriesChange(value + 1)}
+          onPress={() => onSeriesChange(Math.min(999, value + 1))}
         >
           <Text style={stylesCounter.buttonText}>+</Text>
         </TouchableOpacity>
@@ -94,14 +95,15 @@ const stylesCounter = StyleSheet.create({
   valueContainer: {
     flex: 1,
     alignItems: "center",
-    width: 9999,
+    width: 100000,
     overflow: "hidden",
   },
   value: {
     fontSize: 16,
     color: "#111827",
     textAlign: "center",
-    width: 9999,
+    width: 100000,
+    fontFamily: "Montserrat-Bold",
   },
 });
 

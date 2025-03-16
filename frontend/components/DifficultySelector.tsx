@@ -16,7 +16,7 @@ const DifficultySelector: React.FC<DifficultySelectorProps> = ({
       <Text style={styles.label}>Уровень сложности</Text>
       <View style={styles.options}>
         <TouchableOpacity
-          activeOpacity={1}
+          activeOpacity={0.9}
           style={[
             styles.option,
             selectedDifficulty === "simple"
@@ -37,7 +37,7 @@ const DifficultySelector: React.FC<DifficultySelectorProps> = ({
         </TouchableOpacity>
 
         <TouchableOpacity
-          activeOpacity={1}
+          activeOpacity={0.9}
           style={[
             styles.option,
             selectedDifficulty === "complex"

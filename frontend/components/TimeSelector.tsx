@@ -44,7 +44,7 @@ const TimeSelector: React.FC<TimeSelectorProps> = ({
       keyExtractor={(time) => time}
       renderItem={({ item }) => (
         <TouchableOpacity
-          activeOpacity={1}
+          activeOpacity={0.9}
           key={item}
           style={[
             styles.timeOption,
@@ -78,6 +78,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderStyle: "solid",
+    boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.15)",
   },
   selectedTime: {
     backgroundColor: "#E5F6FF",
