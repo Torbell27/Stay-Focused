@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, TextInput, StyleSheet } from 'react-native';
+import { View, TextInput, StyleSheet} from 'react-native';
 import { Colors } from "@/constants/Colors";
 
 interface RegistrationData {
