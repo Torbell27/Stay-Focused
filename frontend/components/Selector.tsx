@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#49535C",
     fontFamily: "Montserrat-SemiBold",
+    marginRight: "auto",
   },
   options: {
     flexDirection: "row",

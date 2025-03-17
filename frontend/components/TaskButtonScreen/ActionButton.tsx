@@ -67,7 +67,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
-    shadowColor: "#000",
     boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.2)",
     elevation: 5,
     borderStyle: "solid",
