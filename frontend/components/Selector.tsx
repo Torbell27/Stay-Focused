@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: "#49535C",
+    color: "#636262",
     fontFamily: "Montserrat-SemiBold",
     marginRight: "auto",
   },
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.1)",
   },
   selectedText: {
-    color: "#49535C",
+    color: "#636262",
     fontFamily: "Montserrat-SemiBold",
     fontSize: 13,
   },
