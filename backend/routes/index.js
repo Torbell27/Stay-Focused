@@ -1,22 +1,9 @@
-const express = require('express');
-const fs = require("fs");
-const path = require("path");
+import express from "express";
+import testRouter from "./test.js";
 
-const router = express.Router();
+const routes = express.Router();
 
-const safeImport = async (routePath) => {
-  const fullPath = path.resolve(__dirname, routePath);
-  try {
-    await fs.promises.access(fullPath, fs.constants.F_OK);
-    return require(fullPath);
-  } catch (err) { return null; }
-}
-// -- All Routes
+// All Routes
+routes.use("/test", testRouter);
 
-safeImport('./test.js').then((module) => {
-  if (module) router.use('/test', module);
-});
-
-// --
-
-module.exports = router;
+export default routes;

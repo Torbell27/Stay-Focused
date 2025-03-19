@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TextInput,
 } from "react-native";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
 interface CounterProps {
   label?: string;
@@ -64,7 +65,7 @@ const Counter: React.FC<CounterProps> = ({
           style={styles.button}
           onPress={decrement}
         >
-          <Text style={styles.buttonText}>-</Text>
+          <FontAwesome6 style={styles.buttonIcon} name="minus" />
         </TouchableOpacity>
 
         <View style={styles.valueContainer}>
@@ -83,7 +84,7 @@ const Counter: React.FC<CounterProps> = ({
           style={styles.button}
           onPress={increment}
         >
-          <Text style={styles.buttonText}>+</Text>
+          <FontAwesome6 style={styles.buttonIcon} name="plus" />
         </TouchableOpacity>
       </View>
     </View>
@@ -96,11 +97,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: "#49535C",
+    color: "#636262",
     marginBottom: 8,
     fontFamily: "Montserrat-Regular",
   },
   counterContainer: {
+    height: 40,
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
@@ -109,30 +111,30 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderStyle: "solid",
     borderColor: "#E5E7EB",
+    overflow: "hidden",
   },
   button: {
     width: 32,
-    height: "auto",
+    height: "100%",
     backgroundColor: "#f0f0f0",
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    textAlign: "center",
   },
-  buttonText: {
-    color: "black",
-    fontSize: 28,
-    fontFamily: "Montserrat-Bold",
+  buttonIcon: {
+    color: "#636262",
+    textAlign: "center",
+    fontSize: 20,
+    margin: "auto",
   },
   valueContainer: {
     flex: 1,
-    alignItems: "center",
     width: "100%",
-    overflow: "hidden",
+    height: "100%",
   },
   value: {
+    height: "100%",
+    paddingTop: 0,
+    paddingBottom: 0,
     fontSize: 16,
-    color: "#111827",
+    color: "#636262",
     textAlign: "center",
     width: "100%",
     fontFamily: "Montserrat-Bold",

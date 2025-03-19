@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    color: "#49535C",
+    color: "#636262",
     fontFamily: "Montserrat-SemiBold",
   },
   countersContainer: {

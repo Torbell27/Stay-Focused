@@ -1,14 +1,15 @@
-import axios from 'axios';
 import { Text, View, Button } from "react-native";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import * as Font from "expo-font";
+import api from "@/scripts/api";
 
 export default function App() {
   const router = useRouter();
   const [appIsReady, setAppIsReady] = useState(false);
-  const [apiResponse, setApiResponse] = useState<any>(null);
+
+  const [apiResponse, setApiResponse] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
@@ -30,14 +31,13 @@ export default function App() {
         setAppIsReady(true);
       }
     }
-    axios.get(`http://localhost:5000/adhd-support-app/api/test/get`)
-    .then(response => {
-      setApiResponse(response.data);
-    })
-    .catch(err => {
-      setError(err);
-    });
     prepare();
+
+    // TEST
+    api
+      .test()
+      .then((response) => setApiResponse(response.data.answer))
+      .catch((error) => setError(error.response));
   }, []);
 
   const onLayoutRootView = useCallback(async () => {
@@ -58,10 +58,7 @@ export default function App() {
       <Text>👋</Text>
 
       {error && <Text>Error: {error.message}</Text>}
-      
-      {apiResponse && !error && (
-        <Text>{apiResponse}</Text>
-      )}
+      {apiResponse && !error && <Text>{apiResponse}</Text>}
 
       <View style={{ gap: 12 }}>
         <Button
