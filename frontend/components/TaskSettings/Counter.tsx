@@ -127,8 +127,10 @@ const styles = StyleSheet.create({
   valueContainer: {
     flex: 1,
     width: "100%",
+    height: "100%",
   },
   value: {
+    height: "100%",
     paddingTop: 0,
     paddingBottom: 0,
     fontSize: 16,
