@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { Text, View, Button } from "react-native";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
@@ -7,6 +8,8 @@ import * as Font from "expo-font";
 export default function App() {
   const router = useRouter();
   const [appIsReady, setAppIsReady] = useState(false);
+  const [apiResponse, setApiResponse] = useState<any>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     async function prepare() {
@@ -27,6 +30,13 @@ export default function App() {
         setAppIsReady(true);
       }
     }
+    axios.get(`http://localhost:5000/adhd-support-app/api/test/get`)
+    .then(response => {
+      setApiResponse(response.data);
+    })
+    .catch(err => {
+      setError(err);
+    });
     prepare();
   }, []);
 
@@ -46,6 +56,12 @@ export default function App() {
     >
       <Text>ADHD Support App</Text>
       <Text>👋</Text>
+
+      {error && <Text>Error: {error.message}</Text>}
+      
+      {apiResponse && !error && (
+        <Text>{apiResponse}</Text>
+      )}
 
       <View style={{ gap: 12 }}>
         <Button
