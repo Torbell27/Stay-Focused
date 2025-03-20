@@ -37,7 +37,7 @@ export default function App() {
     api
       .test()
       .then((response) => setApiResponse(response.data.answer))
-      .catch((error) => setError(error.response));
+      .catch((error) => setError(error));
   }, []);
 
   const onLayoutRootView = useCallback(async () => {
