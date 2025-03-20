@@ -1,30 +1,8 @@
 import { Colors } from "@/constants/Colors";
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import Svg, { Path } from "react-native-svg";
 import { useRouter } from "expo-router";
-
-const BackButton = () => {
-  return (
-    <Svg viewBox="0 0 320 512" style={styles.backButton}>
-      <Path
-        fill={Colors.main}
-        d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"
-      />
-    </Svg>
-  );
-};
-
-const LogoutButton = () => {
-  return (
-    <Svg viewBox="0 0 512 512" style={styles.backButton}>
-      <Path
-        fill={Colors.main}
-        d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l73.4 73.4H192c-17.7 0-32 14.3-32 32s14.3 32 32 32h210.7l-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l128-128zM160 96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96C43 32 0 75 0 128v256c0 53 43 96 96 96h64c17.7 0 32-14.3 32-32s-14.3-32-32-32H96c-17.7 0-32-14.3-32-32V128c0-17.7 14.3-32 32-32h64z"
-      />
-    </Svg>
-  );
-};
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
 interface HeaderProps {
   title: string;
@@ -35,34 +13,44 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({
   title,
   createBackButton = true,
-  logoutFunc = null,
+  logoutFunc = undefined,
 }) => {
   const router = useRouter();
   return (
     <View style={styles.header}>
       <View style={styles.headerContent}>
-        <View style={styles.backButton}>
+        <View style={styles.icon}>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={router.back}
-            style={{ display: createBackButton ? "flex" : "none" }}
+            style={[
+              styles.iconButton,
+              { display: createBackButton ? "flex" : "none" },
+            ]}
           >
-            <BackButton />
+            <FontAwesome6 name="chevron-left" size={28} color={Colors.main} />
           </TouchableOpacity>
         </View>
 
         <Text numberOfLines={2} style={styles.title}>
           {title}
         </Text>
-        <View style={styles.backButton}>
+        <View style={styles.icon}>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => {
               if (logoutFunc) logoutFunc();
             }}
-            style={{ display: logoutFunc ? "flex" : "none" }}
+            style={[
+              styles.iconButton,
+              { display: logoutFunc ? "flex" : "none" },
+            ]}
           >
-            <LogoutButton />
+            <FontAwesome6
+              name="arrow-right-from-bracket"
+              size={28}
+              color={Colors.main}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -74,8 +62,8 @@ const styles = StyleSheet.create({
   header: {
     display: "flex",
     alignItems: "center",
-    paddingLeft: 16,
-    paddingRight: 16,
+    paddingLeft: 18,
+    paddingRight: 18,
     paddingTop: 18,
     paddingBottom: 18,
     backgroundColor: "#ffffff",
@@ -93,9 +81,15 @@ const styles = StyleSheet.create({
     alignSelf: "stretch",
     textAlign: "center",
   },
-  backButton: {
+  icon: {
     width: 28,
     height: 28,
+    alignItems: "center",
+  },
+  iconButton: {
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
   },
   title: {
     justifyContent: "center",
