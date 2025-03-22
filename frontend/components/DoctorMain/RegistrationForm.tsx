@@ -1,103 +1,138 @@
-import React, { useEffect, useState } from "react";
-import { View, TextInput, StyleSheet} from 'react-native';
+import React, { useState, useEffect } from "react";
+import { View, TextInput, StyleSheet, Text, Pressable, 
+    KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback} from 'react-native';
 import { Colors } from "@/constants/Colors";
+import { filterNameText, filterUsernameText, filterPasswordText, 
+    filterEmailText, getFieldTooltip } from '@/components/ValidateInputs';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useTogglePasswordVisibility, passwordInputStyles } from "@/hook/PasswordVisibility";
+
 
 interface RegistrationData {
-    firstName: string; 
-    secondName: string; 
+    firstName: string;
+    secondName: string;
     patronymic: string;
-    username: string; 
-    password: string; 
-    email: string; 
-}
-
+    username: string;
+    password: string;
+    email: string;
+    }
+    
 interface RegistrationFieldsProps {
-    onFormChange: (data: RegistrationData) => void; 
-}
-
-const RegistrationForm: React.FC<RegistrationFieldsProps> = ({ onFormChange }) => {
-    const [firstName, setFirstName] = useState('');
-    const [secondName, setSecondName] = useState('');
-    const [patronymic, setPatronymic] = useState('');
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [email, setEmail] = useState('');
-
+    onFormChange: (data: RegistrationData) => void;
+    errors: { [key: string]: string }; 
+    }
+    
+    const RegistrationForm: React.FC<RegistrationFieldsProps> = ({ onFormChange, errors }) => {
     const [focusedInput, setFocusedInput] = useState<string | null>(null);
-
+    const [tooltip, setTooltip] = useState<string | null>(null);
+    const { passwordVisibility, rightIcon, handlePasswordVisibility } = useTogglePasswordVisibility();
+    const [fields, setFields] = useState({
+        firstName: "",
+        secondName: "",
+        patronymic: "",
+        username: "",
+        password: "",
+        email: "",
+    });
+    
     useEffect(() => {
-        const registrationData: RegistrationData = { 
-            firstName, 
-            secondName, 
-            patronymic, 
-            username, 
-            password, 
-            email 
-        };
-        onFormChange(registrationData); 
-    }, [firstName, secondName, patronymic, username, password, email]);
+        onFormChange(fields);  
+    }, [fields]);
 
+    const getInputStyle = (field: string) => {
+        return [
+            styles.input,
+            (errors[field] && styles.inputError), 
+            (focusedInput === field && styles.focusedInput) 
+          ];
+        };
+    
+    useEffect(() => {
+        if (focusedInput) {
+        setTooltip(getFieldTooltip(focusedInput));  
+        }
+    }, [focusedInput]); 
+    
     return (
-        <View style={styles.container}>
-            <TextInput
-                style={[styles.input, focusedInput === 'firstName' ? styles.focusedInput : {}]}
-                placeholder="Имя" 
-                value={firstName}
-                onChangeText={setFirstName}
-                onFocus={() => setFocusedInput('firstName')}
-                onBlur={() => setFocusedInput(null)}
-            />
-            <TextInput
-                style={[styles.input, focusedInput === 'secondName' ? styles.focusedInput : {}]}
-                placeholder="Фамилия" 
-                value={secondName}
-                onChangeText={setSecondName}
-                onFocus={() => setFocusedInput('secondName')}
-                onBlur={() => setFocusedInput(null)}
-            />
-            <TextInput
-                style={[styles.input, focusedInput === 'patronymic' ? styles.focusedInput : {}]}
-                placeholder="Отчество" 
-                value={patronymic}
-                onChangeText={setPatronymic}
-                onFocus={() => setFocusedInput('patronymic')}
-                onBlur={() => setFocusedInput(null)}
-            />
-            <TextInput
-                style={[styles.input, focusedInput === 'username' ? styles.focusedInput : {}]}
-                placeholder="Логин" 
-                value={username}
-                onChangeText={setUsername}
-                onFocus={() => setFocusedInput('username')}
-                onBlur={() => setFocusedInput(null)}
-            />
-            <TextInput
-                style={[styles.input, focusedInput === 'password' ? styles.focusedInput : {}]}
-                placeholder="Пароль" 
-                secureTextEntry
-                value={password}
-                onChangeText={setPassword}
-                onFocus={() => setFocusedInput('password')}
-                onBlur={() => setFocusedInput(null)}
-            />
-            <TextInput
-                style={[styles.input, focusedInput === 'email' ? styles.focusedInput : {}]}
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-                onFocus={() => setFocusedInput('email')}
-                onBlur={() => setFocusedInput(null)}
-            />
-        </View>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.container}>  
+        {tooltip && <Text style={styles.tooltip}>{tooltip}</Text>}
+            <ScrollView>
+                <TextInput
+                    style={getInputStyle("firstName")}
+                    placeholder="Имя"
+                    onFocus={() => setFocusedInput('firstName')}
+                    onBlur={() => setFocusedInput(null)}
+                    onChangeText={(text) => setFields((prev) => ({ ...prev, firstName: filterNameText(text) }))}
+                    value={fields.firstName}
+                />
+                {errors.firstName && <Text style={styles.errorText}>{errors.firstName}</Text>}
+            
+                <TextInput
+                    style={getInputStyle("secondName")}
+                    placeholder="Фамилия"
+                    onFocus={() => setFocusedInput('secondName')}
+                    onBlur={() => setFocusedInput(null)}
+                    onChangeText={(text) => setFields((prev) => ({ ...prev, secondName: filterNameText(text) }))}
+                    value={fields.secondName}
+                />
+                {errors.secondName && <Text style={styles.errorText}>{errors.secondName}</Text>}
+            
+                <TextInput
+                    style={getInputStyle("patronymic")}
+                    placeholder="Отчество"
+                    onFocus={() => setFocusedInput('patronymic')}
+                    onBlur={() => setFocusedInput(null)}
+                    onChangeText={(text) => setFields((prev) => ({ ...prev, patronymic: filterNameText(text) }))}
+                    value={fields.patronymic}
+                />
+                {errors.patronymic && <Text style={styles.errorText}>{errors.patronymic}</Text>}
+            
+                <TextInput
+                    style={getInputStyle("username")}
+                    placeholder="Логин"
+                    onFocus={() => setFocusedInput('username')}
+                    onBlur={() => setFocusedInput(null)}
+                    onChangeText={(text) => setFields((prev) => ({ ...prev, username: filterUsernameText(text) }))}
+                    value={fields.username}
+                />
+                {errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
+                <View style={passwordInputStyles.passwordContainer}>
+                    <TextInput
+                        style={getInputStyle("password")}
+                        placeholder="Пароль"
+                        secureTextEntry={passwordVisibility}
+                        onFocus={() => setFocusedInput('password')}
+                        onBlur={() => setFocusedInput(null)}
+                        onChangeText={(text) => setFields({ ...fields,  password: filterPasswordText(text) })}
+                        value={fields.password}
+                    />
+                    <Pressable onPress={handlePasswordVisibility} style={passwordInputStyles.iconButton}>
+                        <MaterialCommunityIcons name={rightIcon} size={22} color="#232323" />
+                    </Pressable>
+                </View>
+                {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+            
+                <TextInput
+                    style={getInputStyle("email")}
+                    placeholder="Email"
+                    onFocus={() => setFocusedInput('email')}
+                    onBlur={() => setFocusedInput(null)}
+                    onChangeText={(text) => setFields((prev) => ({ ...prev, email: filterEmailText(text) }))}
+                    value={fields.email}
+                />
+                {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+                </ScrollView>
+        </KeyboardAvoidingView>
     );
-};
+    };
 
 const styles = StyleSheet.create({
     container: {
         padding: 20,
+        flex: 1,
     },
     input: {
-        backgroundColor: Colors.primary, 
+        backgroundColor: Colors.primary,
         borderColor: Colors.border,
         color: Colors.inputInactiveText,
         height: 45,
@@ -107,9 +142,28 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
     },
     focusedInput: {
-        borderColor: Colors.main, 
+        borderColor: Colors.main,
         color: "#2A2A2A",
     },
+    tooltip: {
+        fontFamily: "Montserrat-SemiBold",
+        color: 'gray',
+        fontSize: 12,
+        marginTop: 15,
+        marginBottom: 25,
+        paddingHorizontal: 10,
+    },
+    inputError: {
+        borderColor: "red",
+    },
+    errorText: {
+        color: "red",
+        fontSize: 12,
+        marginBottom: 10,
+        paddingHorizontal: 5,
+        position: 'relative',
+    },
+   
 });
 
 export default RegistrationForm;

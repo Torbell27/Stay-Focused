@@ -84,7 +84,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   item: {
-    height: 75,
+    flexShrink: 1,
+    minHeight: 75,
     flexDirection: "row",
     alignItems: "center",
     padding: 20,
