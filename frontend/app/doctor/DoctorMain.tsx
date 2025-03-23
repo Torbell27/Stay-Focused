@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
 import Header from "@/components/Header";
 import RegistrationForm from "@/components/DoctorMain/RegistrationForm";
 import PatientList from "@/components/DoctorMain/PatientList";
@@ -81,23 +81,26 @@ const DoctorMain: React.FC = () => {
         </View>
       )}
 
-      {selc === "patient_registration" && (
-        <>
-          <RegistrationForm
-            onFormChange={handleFormChange}
-            errors={formErrors}  
-          />
-          <Footer
-            components={[
-              <FooterButton
-                onPress={handleRegister}
-                label="Зарегистрировать"
-                key="1"
-              />,
-            ]}
-          ></Footer>
-        </>
-      )}
+  {selc === "patient_registration" && (
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+              <RegistrationForm
+                  onFormChange={handleFormChange}
+                  errors={formErrors}
+              />
+              <Footer
+                  components={[
+                      <FooterButton
+                          onPress={handleRegister}
+                          label="Зарегистрировать"
+                          key="1"
+                      />,
+                  ]}
+              />
+          </ScrollView>
+      </KeyboardAvoidingView>
+  )}
+
     </View>
   );
 };
