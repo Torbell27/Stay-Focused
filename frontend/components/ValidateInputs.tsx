@@ -1,0 +1,62 @@
+export const filterNameText = (text: string) => text.replace(/[^A-Za-zА-Яа-яЁё]/g, '');
+export const filterUsernameText = (text: string) => text.replace(/[^A-Za-z]/g, '');
+export const filterPasswordText = (text: string) => text.replace(/[^A-Za-z0-9!@#$%^&*()_+=-]/g, '');
+export const filterEmailText = (text: string) => text.replace(/[^A-Za-z0-9@.]/g, '');
+
+export const emailValidationRegex = /^[a-zA-Z0-9]+@[a-zA-Z]+\.[a-zA-Z]{2,}$/;
+
+export const validateEmail = (email: string) => {
+    return emailValidationRegex.test(email);
+};
+
+export const getFieldTooltip = (field: string) => {
+    switch (field) {
+        case 'firstName':
+        case 'secondName':
+        case 'patronymic':
+            return 'ФИО должно содержать только буквенные символы';
+        case 'username':
+            return 'Логин должен содержать только латинские буквы';
+        case 'password':
+            return 'Пароль может содержать только латинские буквы, цифры и спецсимволы';
+        case 'email':
+            return 'Введите действительный email-адрес (например, example@mail.com)';
+        default:
+            return null;
+    }
+};
+
+export const validateForm = (formData: any, isRegistration: boolean = true) => {
+    let errors: { [key: string]: string | null } = {}; 
+    if (isRegistration) {
+        if (!formData.firstName) {
+            errors.firstName = 'Имя обязательно для заполнения';
+        }
+        if (!formData.secondName) {
+            errors.secondName = 'Фамилия обязательна для заполнения';
+        }
+        if (!formData.patronymic) {
+            errors.patronymic = 'Отчество обязательно для заполнения';
+        }
+    }
+
+    if (!formData.username) {
+        errors.username = 'Логин обязателен для заполнения';
+    } 
+
+    if (!formData.password) {
+        errors.password = 'Пароль обязателен для заполнения';
+    } 
+
+    if (isRegistration) {
+        if (!formData.email) {
+            errors.email = 'Email обязателен для заполнения';
+        } else if (!validateEmail(formData.email)) {
+            errors.email = 'Некорректно введен email';
+        }
+    } 
+
+    return errors;
+};
+
+  

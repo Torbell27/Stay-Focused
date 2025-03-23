@@ -8,6 +8,7 @@ import FooterButton from "@/components/FooterButton";
 import Footer from "@/components/Footer";
 import { Colors } from "@/constants/Colors";
 import { useRouter } from "expo-router";
+import { validateForm } from "@/components/ValidateInputs";
 
 type RegistrationData = {
   firstName: string;
@@ -22,6 +23,7 @@ const DoctorMain: React.FC = () => {
   const router = useRouter();
   const [headerUserName, setHeaderUserName] = useState<string>("Иванова И. И.");
   const [selc, setSelc] = useState<string>("patient_list");
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});  
   const [registrationData, setRegistrationData] = useState<RegistrationData>({
     firstName: "",
     secondName: "",
@@ -32,7 +34,17 @@ const DoctorMain: React.FC = () => {
   });
 
   const handleRegister = () => {
-    console.log(registrationData);
+    const errors = validateForm(registrationData, true);  
+    
+    const filteredErrors = Object.fromEntries(
+      Object.entries(errors).map(([key, value]) => [key, value || ""]) 
+    );
+
+    setFormErrors(filteredErrors);  
+
+    if (Object.keys(filteredErrors).length === 0) {
+      console.log(registrationData);
+    }
   };
 
   const handleFormChange = (data: RegistrationData) => {
@@ -71,7 +83,10 @@ const DoctorMain: React.FC = () => {
 
       {selc === "patient_registration" && (
         <>
-          <RegistrationForm onFormChange={handleFormChange} />
+          <RegistrationForm
+            onFormChange={handleFormChange}
+            errors={formErrors}  
+          />
           <Footer
             components={[
               <FooterButton
