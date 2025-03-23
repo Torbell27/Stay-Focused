@@ -89,7 +89,7 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({ errors = {} }) =
                         <Pressable 
                             onPress={handlePasswordVisibility} 
                             style={passwordInputStyles.iconButton} 
-                            hitSlop={{ top: 40, bottom: 640, left: 40, right: 40 }}>
+                            hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }}>
                             <MaterialCommunityIcons name={rightIcon} size={24} color={Colors.inputInactiveText} />
                         </Pressable>
                     </View>
