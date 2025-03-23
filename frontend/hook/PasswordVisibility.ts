@@ -21,7 +21,7 @@ export const passwordInputStyles = StyleSheet.create({
   iconButton: {
     position: 'absolute',
     right: 10,
-    top: '50%',
+    top: 26,
     transform: [{ translateY: -15 }],
   },
   passwordContainer: {

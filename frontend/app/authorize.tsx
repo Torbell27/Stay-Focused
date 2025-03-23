@@ -63,7 +63,11 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({ errors = {} }) =
                         placeholder="Логин"
                         onFocus={() => setFocusedInput('username')}
                         onBlur={() => setFocusedInput(null)}
-                        onChangeText={(text) => setAuthorizationData((prev) => ({ ...prev, username: filterUsernameText(text) }))} 
+                        onChangeText={(text) => {
+                            if (filterUsernameText(text)) {
+                                setAuthorizationData((prev) => ({ ...prev, username: text }));
+                            }
+                        }}
                         value={authorizationData.username}
                     />
                     {formErrors.username && <Text style={styles.errorText}>{formErrors.username}</Text>}
@@ -75,11 +79,18 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({ errors = {} }) =
                             secureTextEntry={passwordVisibility}
                             onFocus={() => setFocusedInput('password')}
                             onBlur={() => setFocusedInput(null)}
-                            onChangeText={(text) => setAuthorizationData({ ...authorizationData, password: filterPasswordText(text) })}
+                            onChangeText={(text) => {
+                                                        if (filterPasswordText(text)) {
+                                                            setAuthorizationData((prev) => ({ ...prev, password: text }));
+                                                        }
+                                                    }}
                             value={authorizationData.password}
                         />
-                        <Pressable onPress={handlePasswordVisibility} style={passwordInputStyles.iconButton}>
-                            <MaterialCommunityIcons name={rightIcon} size={22} color="#232323" />
+                        <Pressable 
+                            onPress={handlePasswordVisibility} 
+                            style={passwordInputStyles.iconButton} 
+                            hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }}>
+                            <MaterialCommunityIcons name={rightIcon} size={24} color={Colors.inputInactiveText} />
                         </Pressable>
                     </View>
                     {formErrors.password && <Text style={styles.errorText}>{formErrors.password}</Text>}
