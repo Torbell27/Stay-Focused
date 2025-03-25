@@ -1,9 +1,11 @@
 import express from "express";
 import testRouter from "./test.js";
+import authRouter from "./authRouter.js";
 
-const routes = express.Router();
+const router = express.Router();
 
 // All Routes
-routes.use("/test", testRouter);
+router.use("/test", testRouter);
+router.use("/auth", authRouter);
 
-export default routes;
+export default router;
