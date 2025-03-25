@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, StyleSheet, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, StyleSheet, KeyboardAvoidingView, ScrollView, Keyboard, Platform } from "react-native";
 import Header from "@/components/Header";
 import RegistrationForm from "@/components/DoctorMain/RegistrationForm";
 import PatientList from "@/components/DoctorMain/PatientList";
@@ -23,6 +23,7 @@ const DoctorMain: React.FC = () => {
   const router = useRouter();
   const [headerUserName, setHeaderUserName] = useState<string>("Иванова И. И.");
   const [selc, setSelc] = useState<string>("patient_list");
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState<boolean>(false); 
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});  
   const [registrationData, setRegistrationData] = useState<RegistrationData>({
     firstName: "",
@@ -32,6 +33,20 @@ const DoctorMain: React.FC = () => {
     password: "",
     email: "",
   });
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setIsKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setIsKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const handleRegister = () => {
     const errors = validateForm(registrationData, true);  
@@ -82,23 +97,23 @@ const DoctorMain: React.FC = () => {
       )}
 
   {selc === "patient_registration" && (
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
               <RegistrationForm
                   onFormChange={handleFormChange}
                   errors={formErrors}
               />
-              <Footer
+               {!isKeyboardVisible && ( 
+                <Footer
                   components={[
-                      <FooterButton
-                          onPress={handleRegister}
-                          label="Зарегистрировать"
-                          key="1"
-                      />,
+                    <FooterButton
+                      onPress={handleRegister}
+                      label="Зарегистрировать"
+                      key="1"
+                    />,
                   ]}
-              />
+                />
+              )}
           </ScrollView>
-      </KeyboardAvoidingView>
   )}
 
     </View>

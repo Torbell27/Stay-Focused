@@ -3,10 +3,11 @@ import Header from "@/components/Header";
 import { View, TextInput, StyleSheet, Text, Pressable, 
     KeyboardAvoidingView, Platform, ScrollView} from 'react-native';
 import { Colors } from "@/constants/Colors";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useTogglePasswordVisibility, passwordInputStyles } from "@/hook/PasswordVisibility";
 import FooterButton from "@/components/FooterButton";
 import Footer from "@/components/Footer";
+import TextField from '@/components/TextInputCustom';
 import { filterUsernameText, filterPasswordText, validateForm } from "@/components/ValidateInputs";
 import { validateOutput } from "@/components/ValidateOutputs";
 import api from "@/scripts/api";
@@ -31,12 +32,8 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({ errors = {} }) =
     });
     const [apiResponse, setApiResponse] = useState<string | null>(null); 
 
-    const getInputStyle = (field: string) => {
-        return [
-            styles.input,
-            (errors[field] && styles.inputError), 
-            (focusedInput === field && styles.focusedInput) 
-        ];
+    const handleChange = (field: keyof AuthorizationData) => (text: string) => {
+        setAuthorizationData((prev) => ({ ...prev, [field]: text }));
     };
 
     const handleAuthorize = async () => {
@@ -72,44 +69,34 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({ errors = {} }) =
             
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.formContainer}>  
                 <ScrollView contentContainerStyle={styles.formContent}>
-                    <TextInput
-                        style={getInputStyle("username")}
-                        placeholder="Логин"
-                        onFocus={() => setFocusedInput('username')}
-                        onBlur={() => setFocusedInput(null)}
-                        onChangeText={(text) => {
-                            if (filterUsernameText(text)) {
-                                setAuthorizationData((prev) => ({ ...prev, username: text }));
-                            }
-                        }}
-                        value={authorizationData.username}
-                    />
-                    {formErrors.username && <Text style={styles.errorText}>{formErrors.username}</Text>}
-                
-                    <View style={passwordInputStyles.passwordContainer}>
-                        <TextInput
-                            style={getInputStyle("password")}
-                            placeholder="Пароль"
+                    <View style={styles.inputContainer}>
+                        <TextField
+                            label="Логин"
+                            value={authorizationData.username}
+                            onChangeText={handleChange('username')}
+                            errorText={formErrors.username || errors.username || null}
+                            onFocus={() => setFocusedInput('username')}
+                            onBlur={() => setFocusedInput(null)}
+                        />
+                     </View>
+                    <View style={styles.inputContainer}>
+                        <TextField
+                            label="Пароль"
+                            value={authorizationData.password}
+                            onChangeText={handleChange('password')}
+                            errorText={formErrors.password || errors.password || outputError || null}
                             secureTextEntry={passwordVisibility}
                             onFocus={() => setFocusedInput('password')}
                             onBlur={() => setFocusedInput(null)}
-                            onChangeText={(text) => {
-                                                        if (filterPasswordText(text)) {
-                                                            setAuthorizationData((prev) => ({ ...prev, password: text }));
-                                                        }
-                                                    }}
-                            value={authorizationData.password}
                         />
                         <Pressable 
                             onPress={handlePasswordVisibility} 
                             style={passwordInputStyles.iconButton} 
                             hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }}>
-                            <MaterialCommunityIcons name={rightIcon} size={24} color={Colors.inputInactiveText} />
+                            <Ionicons name={rightIcon} size={24} color={Colors.secondary} />
                         </Pressable>
                     </View>
-                    {formErrors.password && <Text style={styles.errorText}>{formErrors.password}</Text>}
-                    {outputError && <Text style={styles.errorText}>{outputError}</Text>}
-                    {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+
                 </ScrollView>
             </KeyboardAvoidingView>
 
@@ -135,29 +122,8 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         justifyContent: "center", 
     },
-    input: {
-        backgroundColor: Colors.primary,
-        borderColor: Colors.border,
-        color: Colors.inputInactiveText,
-        height: 45,
-        borderWidth: 1,
-        borderRadius: 8,
-        marginBottom: 10,
-        paddingHorizontal: 10,
-    },
-    focusedInput: {
-        borderColor: Colors.main,
-        color: "#2A2A2A",
-    },
-    inputError: {
-        borderColor: "red",
-    },
-    errorText: {
-        color: "red",
-        fontSize: 12,
-        marginBottom: 10,
-        paddingHorizontal: 5,
-        position: 'relative',
+    inputContainer: {
+        marginTop: 15, 
     },
 });
 
