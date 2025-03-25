@@ -21,11 +21,11 @@ const PatientInfo = () => {
   };
 
   const handlePatientStatistics = () => {
-    console.log("Navigate to patient statistics");
+    router.push("/doctor/StatisticsScreen")
   };
 
   const handlePatientAssignments = () => {
-    console.log("Navigate to patient assignments");
+    router.push("/doctor/TaskSettings")
   };
 
   return (
@@ -38,27 +38,11 @@ const PatientInfo = () => {
           <PatientInfoField
             label="Логин"
             value={patientData.login}
-            iconSource={{
-              uri: "https://cdn.builder.io/api/v1/image/assets/f48f5e8ac2544e658b3a1ab1fbecb356/254ea9f9ee8f746e53a42125f2a79d6f874ff15d?placeholderIfAbsent=true",
-            }}
-            hasDropdown={true}
-          />
-
-          <PatientInfoField
-            label="Пароль"
-            value="che!smotrish"
-            iconSource={{
-              uri: "https://cdn.builder.io/api/v1/image/assets/f48f5e8ac2544e658b3a1ab1fbecb356/002d3dac0175885e6893f928f8c4e08cb4cd3690?placeholderIfAbsent=true",
-            }}
-            isPassword={true}
           />
 
           <PatientInfoField
             label="Почта"
             value={patientData.email}
-            iconSource={{
-              uri: "https://cdn.builder.io/api/v1/image/assets/f48f5e8ac2544e658b3a1ab1fbecb356/0bef21a445fe764458e719223774049d02a89bd7?placeholderIfAbsent=true",
-            }}
           />
         </View>
       </View>

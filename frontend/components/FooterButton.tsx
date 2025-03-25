@@ -5,13 +5,14 @@ import { Text, TouchableOpacity, StyleSheet } from "react-native";
 interface FooterButtonProps {
   onPress: () => void;
   label: string;
+  secondary?: boolean;
 }
 
-const FooterButton: React.FC<FooterButtonProps> = ({ onPress, label }) => {
+const FooterButton: React.FC<FooterButtonProps> = ({ onPress, label, secondary = false }) => {
   return (
     <TouchableOpacity
       activeOpacity={0.9}
-      style={styles.button}
+      style={[styles.button, secondary && styles.secondaryButton]}
       onPress={onPress}
     >
       <Text style={styles.buttonText}>{label}</Text>
@@ -29,8 +30,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  secondaryButton: {
+    backgroundColor: Colors.secondary,
+  },
   buttonText: {
-    color: "#ffffff",
+    color: Colors.primary,
     fontSize: 16,
     fontFamily: "Montserrat-SemiBold",
   },
