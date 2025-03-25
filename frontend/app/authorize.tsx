@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
-import { View, TextInput, StyleSheet, Text, Pressable, 
-    KeyboardAvoidingView, Platform, ScrollView} from 'react-native';
+import { View, StyleSheet, Pressable, 
+KeyboardAvoidingView, Platform, ScrollView, Text} from 'react-native';
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useTogglePasswordVisibility, passwordInputStyles } from "@/hook/PasswordVisibility";
 import FooterButton from "@/components/FooterButton";
 import Footer from "@/components/Footer";
 import TextField from '@/components/TextInputCustom';
-import { filterUsernameText, filterPasswordText, validateForm } from "@/components/ValidateInputs";
-import { validateOutput } from "@/components/ValidateOutputs";
+import { validateForm } from "@/components/ValidateInputs";
+import { checkCode } from "@/components/CheckErrorCode";
 import api from "@/scripts/api";
 
 type AuthorizationData = {
@@ -22,10 +22,9 @@ interface RegistrationFieldsProps {
 }
 
 const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({ errors = {} }) => {
-    const [focusedInput, setFocusedInput] = useState<string | null>(null);
     const { passwordVisibility, rightIcon, handlePasswordVisibility } = useTogglePasswordVisibility();
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
-    const [outputError, setOutputError] = useState<string>();
+    const [error, setError] = useState<string>();
     const [authorizationData, setAuthorizationData] = useState<AuthorizationData>({
         username: "",
         password: "",
@@ -37,7 +36,7 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({ errors = {} }) =
     };
 
     const handleAuthorize = async () => {
-        setOutputError('');
+        setError('');
         const errors = validateForm(authorizationData, false);  
     
         const filteredErrors = Object.fromEntries(
@@ -51,17 +50,13 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({ errors = {} }) =
         .auth(authorizationData)
         .then((response) => setApiResponse(response))
         .catch((error) => {
-            const err = validateOutput(error.message);
-            setOutputError(err);
+            const err = checkCode(error.message);
+            setError(err);
         });
         } else {
             console.log('Validation errors:', filteredErrors); 
         }
     };
-
-    useEffect(() => {
-        console.log(apiResponse);
-      }, [apiResponse]);
 
     return (
         <View style={styles.container}>
@@ -75,8 +70,6 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({ errors = {} }) =
                             value={authorizationData.username}
                             onChangeText={handleChange('username')}
                             errorText={formErrors.username || errors.username || null}
-                            onFocus={() => setFocusedInput('username')}
-                            onBlur={() => setFocusedInput(null)}
                         />
                      </View>
                     <View style={styles.inputContainer}>
@@ -84,11 +77,10 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({ errors = {} }) =
                             label="Пароль"
                             value={authorizationData.password}
                             onChangeText={handleChange('password')}
-                            errorText={formErrors.password || errors.password || outputError || null}
+                            errorText={formErrors.password || errors.password || null}
                             secureTextEntry={passwordVisibility}
-                            onFocus={() => setFocusedInput('password')}
-                            onBlur={() => setFocusedInput(null)}
                         />
+                        <Text style={styles.errorText}>{error}</Text>
                         <Pressable 
                             onPress={handlePasswordVisibility} 
                             style={passwordInputStyles.iconButton} 
@@ -125,6 +117,11 @@ const styles = StyleSheet.create({
     inputContainer: {
         marginTop: 15, 
     },
+    errorText: {
+        marginTop: 4,
+        marginLeft: 5,
+        color: "red"
+    }
 });
 
 export default AuthorizationForm;

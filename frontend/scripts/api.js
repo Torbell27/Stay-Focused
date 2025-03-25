@@ -5,9 +5,6 @@ const api = axios.create({
 });
 
 export default {
-  test() {
-    return api.get("/test/get");
-  },
   auth: async (authData) => {
     try {
       const response = await api.post(`http://localhost:5000/adhd-support-app/api/auth/sign_in`, authData, {

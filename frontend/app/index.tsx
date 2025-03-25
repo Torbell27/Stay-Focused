@@ -3,14 +3,10 @@ import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import * as Font from "expo-font";
-import api from "@/scripts/api";
 
 export default function App() {
   const router = useRouter();
   const [appIsReady, setAppIsReady] = useState(false);
-
-  const [apiResponse, setApiResponse] = useState<string | null>(null);
-  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     async function prepare() {
@@ -33,11 +29,6 @@ export default function App() {
     }
     prepare();
 
-    // TEST
-    api
-      .test()
-      .then((response) => setApiResponse(response.data.answer))
-      .catch((error) => setError(error));
   }, []);
 
   const onLayoutRootView = useCallback(async () => {
@@ -56,9 +47,6 @@ export default function App() {
     >
       <Text>ADHD Support App</Text>
       <Text>👋</Text>
-
-      {error && <Text>Error: {error.message}</Text>}
-      {apiResponse && !error && <Text>{apiResponse}</Text>}
 
       <View style={{ gap: 12 }}>
         <Button

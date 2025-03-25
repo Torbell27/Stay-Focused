@@ -128,6 +128,7 @@ const styles = StyleSheet.create({
     textAlignVertical:"bottom",
     height: 50,
     backgroundColor: Colors.primary,
+    paddingBottom: 4
   },
   labelContainer: {
     position: 'absolute',
