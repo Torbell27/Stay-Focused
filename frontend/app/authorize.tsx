@@ -9,6 +9,8 @@ import FooterButton from "@/components/FooterButton";
 import Footer from "@/components/Footer";
 import TextField from '@/components/TextInputCustom';
 import { filterUsernameText, filterPasswordText, validateForm } from "@/components/ValidateInputs";
+import { validateOutput } from "@/components/ValidateOutputs";
+import api from "@/scripts/api";
 
 type AuthorizationData = {
     username: string;
@@ -19,22 +21,25 @@ interface RegistrationFieldsProps {
     errors: { [key: string]: string }; 
 }
 
-const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({ errors = {} }) => {  
+const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({ errors = {} }) => {
     const [focusedInput, setFocusedInput] = useState<string | null>(null);
     const { passwordVisibility, rightIcon, handlePasswordVisibility } = useTogglePasswordVisibility();
-    const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});  
+    const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+    const [outputError, setOutputError] = useState<string>();
     const [authorizationData, setAuthorizationData] = useState<AuthorizationData>({
         username: "",
         password: "",
     });
+    const [apiResponse, setApiResponse] = useState<string | null>(null); 
 
     const handleChange = (field: keyof AuthorizationData) => (text: string) => {
         setAuthorizationData((prev) => ({ ...prev, [field]: text }));
     };
 
-    const handleAuthorize = () => {
+    const handleAuthorize = async () => {
+        setOutputError('');
         const errors = validateForm(authorizationData, false);  
-        
+    
         const filteredErrors = Object.fromEntries(
           Object.entries(errors).map(([key, value]) => [key, value || ""]) 
         );
@@ -42,12 +47,21 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({ errors = {} }) =
         setFormErrors(filteredErrors);  
     
         if (Object.keys(filteredErrors).length === 0) {
-          console.log(authorizationData);
-        }
-        else {
+        api
+        .auth(authorizationData)
+        .then((response) => setApiResponse(response))
+        .catch((error) => {
+            const err = validateOutput(error.message);
+            setOutputError(err);
+        });
+        } else {
             console.log('Validation errors:', filteredErrors); 
         }
     };
+
+    useEffect(() => {
+        console.log(apiResponse);
+      }, [apiResponse]);
 
     return (
         <View style={styles.container}>
@@ -70,7 +84,7 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({ errors = {} }) =
                             label="Пароль"
                             value={authorizationData.password}
                             onChangeText={handleChange('password')}
-                            errorText={formErrors.password || errors.password || null}
+                            errorText={formErrors.password || errors.password || outputError || null}
                             secureTextEntry={passwordVisibility}
                             onFocus={() => setFocusedInput('password')}
                             onBlur={() => setFocusedInput(null)}
@@ -82,8 +96,7 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({ errors = {} }) =
                             <Ionicons name={rightIcon} size={24} color={Colors.secondary} />
                         </Pressable>
                     </View>
-                   
-            
+
                 </ScrollView>
             </KeyboardAvoidingView>
 
