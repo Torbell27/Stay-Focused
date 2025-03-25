@@ -4,6 +4,7 @@ import TaskScheduleItem from "@/components/TaskInfoScreen/TaskScheduleItem";
 import Footer from "@/components/Footer";
 import FooterButton from "@/components/FooterButton";
 import Header from "@/components/Header";
+import ModalWindow from "@/components/ModalWindow";
 import { Colors } from "@/constants/Colors";
 import { useRouter } from "expo-router";
 import axios from "axios";
@@ -13,11 +14,13 @@ const TaskInfoScreen: React.FC = () => {
   const [headerUserName, setHeaderUserName] = useState<string>("Иванова И. И.");
   const [taskData, setTaskData] = useState<any[]>([]);
   const [taskInstructionText, setTaskInstructionText] = useState<string>("");
-
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
+  
+  
   useEffect(() => {
-    axios.get("https://api.example.com/tasks")
+/*     axios.get("https://api.example.com/tasks")
       .then(response => setTaskData(response.data))
-      .catch((error) => {
+      .catch((error) => { */
         const defaultTasks = [
           { id: "1", time: "9:00", series1: "1-ая серия: 10 нажатий", series2: "2-ая серия: 12 нажатий" },
           { id: "2", time: "11:00", series1: "1-ая серия: 10 нажатий", series2: "2-ая серия: 12 нажатий" },
@@ -33,8 +36,10 @@ const TaskInfoScreen: React.FC = () => {
           { id: "12", time: "20:00", series1: "1-ая серия: 10 нажатий", series2: "2-ая серия: 12 нажатий" },
         ];
         setTaskData(defaultTasks);
-        console.error(error);
-      });
+        if (defaultTasks.length > 0) {
+          setExpandedItems({ [defaultTasks[0].id]: true });
+        }
+        // console.error(error);
   }, []);
 
   useEffect(() => {
@@ -43,11 +48,23 @@ const TaskInfoScreen: React.FC = () => {
   }, [difficulty]);
   const router = useRouter();
   const handleStartTask = () => {
-    console.log("Starting task...");
+    router.push("/patient/TaskButtonScreen")
   };
   const handleLogout = () => {
+    setShowConfirm(true);
+  };
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const handleLogoutConfirm = () => {
+    setShowConfirm(false);
     router.back();
   };
+  const handleToggle = (id: string) => {
+    setExpandedItems(prev => ({
+      [id]: !prev[id]
+    }));
+  };
+
   return (
     <View style={styles.container}>
         <Header title={headerUserName} createBackButton={false} logoutFunc={handleLogout}/>
@@ -56,20 +73,35 @@ const TaskInfoScreen: React.FC = () => {
       </View>
       <ScrollView style={styles.schedule}>
         {taskData.map((task) => (
-          <TaskScheduleItem key={task.id} task={task} />
+          <TaskScheduleItem 
+        key={task.id} 
+        task={task} 
+        isExpanded={!!expandedItems[task.id]}
+        onToggle={() => handleToggle(task.id)}
+      />
         ))}
       </ScrollView>
       <Footer components={[
-        <FooterButton key="1" onPress={handleStartTask} label="Приступить к заданию" />
+        <FooterButton key="1" onPress={handleStartTask} label="К заданию" secondary={true}/>
       ]} />
+      <ModalWindow
+        visible={showConfirm}
+        type="confirmation"
+        message="Вы действительно хотите выйти?"
+        onConfirm={handleLogoutConfirm}
+        onCancel={() => setShowConfirm(false)}
+        confirmText="Выйти"
+        cancelText="Отмена"
+    />  
     </View>
+    
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     display: "flex",
-    backgroundColor: "#ffffff",
+    backgroundColor: Colors.backgroundScreen,
     flex: 1,
     fontFamily: "Montserrat-Regular",
   },
