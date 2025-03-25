@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Svg, { Path } from "react-native-svg";
+import AntDesign from '@expo/vector-icons/AntDesign';
 import {
   View,
   FlatList,
@@ -51,6 +51,7 @@ const PatientList: React.FC = () => {
   return (
     <View style={styles.container}>
       <FlatList
+        style={styles.list}
         data={patients}
         contentContainerStyle={{ gap: 12 }}
         keyExtractor={(item) => item.id}
@@ -61,15 +62,7 @@ const PatientList: React.FC = () => {
                 {item.firstName} {item.lastName} {item.patronymic}
               </Text>
             </View>
-            <Svg width="34" height="34" viewBox="0 0 34 34" fill="none">
-              <Path
-                d="M12.875 25.25L21.125 17L12.875 8.75"
-                stroke="#CCD7ED"
-                strokeWidth="4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </Svg>
+            <AntDesign name="right" size={24} color={Colors.secondary} />
           </TouchableOpacity>
         )}
       />
@@ -81,6 +74,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 20,
+  },
+  list: {
     paddingHorizontal: 10,
   },
   item: {
@@ -99,6 +94,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   text: {
+    color: Colors.headerText,
     fontSize: 18,
     fontFamily: "Montserrat-SemiBold",
   },
