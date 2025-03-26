@@ -4,12 +4,16 @@ import { Calendar } from "react-native-calendars";
 import Header from "@/components/Header";
 import { Colors } from "@/constants/Colors";
 import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons";
+import ModalWindow from "@/components/ModalWindow";
 
 const StatisticsScreen: React.FC = () => {
   const [dates, setDates] = useState({ start: "2025-01-01", end: "2025-12-31" });
   const [showCalendar, setShowCalendar] = useState<"start" | "end" | null>(null);
   const [expandedDates, setExpandedDates] = useState<Record<string, boolean>>({});
   const [email, setEmail] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState<"confirmation" | "information">("confirmation");
+  const [modalMessage, setModalMessage] = useState("");
 
   const handleDateSelect = (date: string, type: "start" | "end") => {
     setDates((prev) => ({ ...prev, [type]: date }));
@@ -85,22 +89,51 @@ const StatisticsScreen: React.FC = () => {
     return `${hours}:${minutes}`;
   };
 
+  const handleSendPress = () => {
+    setModalMessage(`Вы действительно хотите отправить на ${email}?`);
+    setModalType("confirmation");
+    setModalVisible(true);
+  };
+
+  const handleConfirmSend = () => {
+    setModalMessage(`Отправлено на почту ${email}`);
+    setModalType("information");
+    // Здесь можно добавить реальную логику отправки
+  };
+
+  const handleModalClose = () => {
+    setModalVisible(false);
+  };
+
+
   return (
-    <View style={styles.container}>
-      <Header title="Слендермен Н. В." createBackButton />
-      <View style={styles.content}>
-        <View style={styles.dateSelection}>
-          {(["start", "end"] as const).map((type) => (
-            <View key={type} style={styles.dateButtonContainer}>
-              <Text style={styles.dateLabel}>{type === "start" ? "Дата начала" : "Дата окончания"}</Text>
-              <TouchableOpacity style={styles.dateButton} onPress={() => setShowCalendar(type)}>
-                <Text style={styles.dateValue}>{dates[type]}</Text>
-                <AntDesign name="calendar" size={20} color={Colors.main} />
+      <View style={styles.container}>
+        <Header title="Слендермен Н. В." createBackButton />
+        <View style={styles.content}>
+          <View style={styles.dateSelection}>
+            <View style={styles.dateWrapper}>
+              <Text style={styles.dateLabel}>Дата начала</Text>
+              <TouchableOpacity 
+                style={styles.dateButton} 
+                onPress={() => setShowCalendar("start")}
+              >
+                <Text style={styles.dateValue}>{dates.start}</Text>
+                <AntDesign name="calendar" size={20} color={Colors.headerText} />
               </TouchableOpacity>
             </View>
-          ))}
-        </View>
-
+  
+            <View style={styles.dateWrapper}>
+              <Text style={styles.dateLabel}>Дата окончания</Text>
+              <TouchableOpacity 
+                style={styles.dateButton} 
+                onPress={() => setShowCalendar("end")}
+              >
+                <Text style={styles.dateValue}>{dates.end}</Text>
+                <AntDesign name="calendar" size={20} color={Colors.headerText} />
+              </TouchableOpacity>
+            </View>
+          </View>
+  
         <ScrollView style={styles.statistics}>
           {filteredStatistics.length === 0 ? (
             <Text style={styles.noDataText}>Нет данных за выбранный период</Text>
@@ -112,13 +145,12 @@ const StatisticsScreen: React.FC = () => {
                   onPress={() => setExpandedDates((prev) => ({ ...prev, [date]: !prev[date] }))}
                 >
                   <Text style={styles.dateTitle}>{date}</Text>
-                  <AntDesign name={expandedDates[date] ? "up" : "down"} size={20} color={Colors.main} />
+                  <AntDesign name={expandedDates[date] ? "up" : "down"} size={20} color={Colors.secondary} />
                 </TouchableOpacity>
 
                 {expandedDates[date] &&
                   Object.entries(time_stat).map(([time, stat]) => (
                     <View key={time} style={styles.timeItem}>
-                      {/* Время и иконки */}
                       <View style={styles.timeHeader}>
                         <Text style={styles.timeText}>{formatTime(stat.timestamp_start)}</Text>
                         <AntDesign
@@ -133,11 +165,7 @@ const StatisticsScreen: React.FC = () => {
                           color={stat.in_time ? "#1BCD1B" : "#F47272"}
                         />
                       </View>
-
-                      {/* Первая серия */}
                       <Text style={styles.seriesText}>1-ая серия: {stat.tap_count[0]} нажатий</Text>
-
-                      {/* Вторая серия */}
                       <Text style={styles.seriesText}>2-ая серия: {stat.tap_count[1]} нажатий</Text>
                     </View>
                   ))}
@@ -146,32 +174,43 @@ const StatisticsScreen: React.FC = () => {
           )}
         </ScrollView>
       </View>
-
       <View style={styles.footer}>
         <View style={styles.emailContainer}>
+        <Text style={styles.label}>Отправить на почту</Text>
           <TextInput
             style={styles.emailInput}
             placeholder="doctor@mail.com"
-            placeholderTextColor={Colors.inputInactiveText}
+            placeholderTextColor={Colors.headerText}
             value={email}
             onChangeText={setEmail}
           />
-          <TouchableOpacity style={styles.sendButton}>
-            <Feather name="send" size={20} color={Colors.primary} />
+          <TouchableOpacity style={styles.sendButton} onPress={handleSendPress}>
+            <Feather name="send" size={18} color={Colors.primary} />
           </TouchableOpacity>
         </View>
+
         <TouchableOpacity style={styles.downloadButton}>
           <Text style={styles.downloadText}>Скачать статистику</Text>
           <AntDesign name="download" size={20} color={Colors.primary} />
         </TouchableOpacity>
       </View>
 
+      <ModalWindow
+        visible={modalVisible}
+        type={modalType}
+        message={modalMessage}
+        onConfirm={handleConfirmSend}
+        onCancel={handleModalClose}
+        confirmText="OK"
+        cancelText="Отмена"
+      />
+
       {showCalendar && (
         <Modal transparent animationType="slide" onRequestClose={() => setShowCalendar(null)}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <Calendar
-                onDayPress={(day) => handleDateSelect(day.dateString, showCalendar)}
+                onDayPress={(day: { dateString: string; }) => handleDateSelect(day.dateString, showCalendar)}
                 markedDates={{ [dates[showCalendar]]: { selected: true, selectedColor: Colors.main } }}
                 theme={{
                   calendarBackground: Colors.primary,
@@ -196,61 +235,33 @@ const StatisticsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.backgroundScreen },
   content: { padding: 20, flex: 1 },
-  dateSelection: { flexDirection: "row", justifyContent: "space-between", marginBottom: 20 },
-  dateButtonContainer: { width: "48%" },
-  dateButton: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 10,
-    backgroundColor: Colors.primary,
-    borderRadius: 8,
-    marginTop: 5,
-  },
-  dateValue: { fontSize: 16, color: Colors.headerText },
-  dateLabel: { fontSize: 14, color: Colors.headerText, marginBottom: 5 },
+  dateSelection: {flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',marginBottom: 20,paddingHorizontal: 10},
+  dateWrapper: {alignItems: 'center',justifyContent: 'center',width: '45%',},
+  dateButton: {flexDirection: 'row', alignItems: 'center',justifyContent: 'space-between', width: '100%',  padding: 12, backgroundColor: Colors.primary, borderRadius: 8, marginTop: 5},
+  dateLabel: {fontSize: 14,color: Colors.headerText,textAlign: 'center',fontFamily: 'Montserrat-SemiBold',},
+  dateValue: {fontSize: 16,color: Colors.headerText,fontFamily: 'Montserrat-Regular',},
   statistics: { flex: 1 },
   dateContainer: { marginBottom: 16 },
-  dateHeader: { flexDirection: "row", justifyContent: "space-between", padding: 10, backgroundColor: Colors.primary, borderRadius: 8 },
-  dateTitle: { fontSize: 18, fontWeight: "bold", color: Colors.main },
-  timeItem: {
-    padding: 10,
-    backgroundColor: Colors.primary,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  timeHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  timeText: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: Colors.headerText,
-    marginRight: 10,
-  },
-  icon: {
-    marginRight: 10,
-  },
-  seriesText: {
-    fontSize: 14,
-    color: Colors.headerText,
-    marginBottom: 4,
-  },
+  dateHeader: { flexDirection: "row", justifyContent: "space-between", padding: 10},
+  dateTitle: { fontSize: 24, fontFamily: "Montserrat-Bold", color: Colors.main},
+  timeItem: {padding: 10,backgroundColor: Colors.primary,borderRadius: 8,marginBottom: 8},
+  timeHeader: {flexDirection: "row", alignItems: "center", marginBottom: 8},
+  timeText: {fontSize: 16, fontFamily: "Montserrat-Bold", color: Colors.headerText, marginRight: 10},
+  icon: {marginRight: 10},
+  seriesText: {fontSize: 16, fontFamily: "Montserrat-Regular", color: Colors.headerText, marginBottom: 4,},
   modalOverlay: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0, 0, 0, 0.5)" },
   modalContent: { width: "90%", backgroundColor: Colors.primary, borderRadius: 8, padding: 16 },
   closeButton: { marginTop: 16, padding: 10, backgroundColor: Colors.main, borderRadius: 8, alignItems: "center" },
+  footer: {padding: 16, backgroundColor: Colors.primary, borderTopWidth: 1, borderTopColor: Colors.secondary, flexDirection: "column",  alignItems: "stretch",},
+  emailContainer: { flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: Colors.secondary, borderRadius: 8, paddingVertical: 4, paddingHorizontal: 10, backgroundColor: Colors.primary,position: "relative",},
+  label: { position: "absolute", top: -9, left: 10, backgroundColor: Colors.primary, paddingHorizontal: 4, fontSize: 11, color: Colors.secondary },
+  emailInput: { flex: 1, paddingVertical: 4, paddingHorizontal: 8, backgroundColor: Colors.primary, borderRadius: 8, marginRight: 6, color: Colors.headerText },
+  sendButton: { padding: 8, backgroundColor: Colors.main, borderRadius: 8, justifyContent: "center", alignItems: "center" },
+  downloadButton: { flexDirection: "row", alignItems: "center", justifyContent: "center", paddingVertical: 12, backgroundColor: Colors.main, borderRadius: 8, marginTop: 16 },
+  downloadText: { color: Colors.primary, fontSize: 16, marginRight: 8, fontWeight: "500" },
   closeButtonText: { color: Colors.primary, fontSize: 16 },
-  footer: { padding: 20, backgroundColor: Colors.primary, borderTopWidth: 1, borderTopColor: Colors.border },
-  emailContainer: { flexDirection: "row", alignItems: "center", marginBottom: 16 },
-  emailInput: { flex: 1, padding: 10, backgroundColor: Colors.backgroundScreen, borderRadius: 8, marginRight: 10, color: Colors.headerText },
-  sendButton: { padding: 10, backgroundColor: Colors.main, borderRadius: 8 },
-  downloadButton: { flexDirection: "row", alignItems: "center", justifyContent: "center", padding: 10, backgroundColor: Colors.main, borderRadius: 8 },
-  downloadText: { color: Colors.primary, fontSize: 16, marginRight: 10 },
-  noDataContainer: {alignItems: "center",justifyContent: "center",marginTop: 20, },
-  noDataText: {fontSize: 16,color: Colors.headerText,fontFamily: "Montserrat-SemiBold",},
+  noDataContainer: { alignItems: "center", justifyContent: "center", marginTop: 20 },
+  noDataText: { fontSize: 16, color: Colors.headerText, fontFamily: "Montserrat-SemiBold" },
 });
 
 export default StatisticsScreen;

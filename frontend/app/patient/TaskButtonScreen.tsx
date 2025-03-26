@@ -1,44 +1,90 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { ActionButton } from "@/components/TaskButtonScreen/ActionButton";
 import Header from "@/components/Header";
 import { Colors } from "@/constants/Colors";
 
-interface BlockProps {
-  title: string;
-  value: string;
-}
-
-const Block: React.FC<BlockProps> = ({ title, value }) => (
+const Block = ({ title, value }: { title: string; value: string }) => (
   <View style={styles.block}>
-    <Text style={[styles.upperText, { color: Colors.headerText }]}>{title}</Text>
-    <Text style={[styles.lowerText, { color: Colors.main }]}>{value}</Text>
+    <Text style={styles.upperText}>{title}</Text>
+    <Text style={styles.lowerText}>{value}</Text>
   </View>
 );
 
 export default function ButtonPage() {
+  const [status, setStatus] = useState("не начато");
+  const [lastPress, setLastPress] = useState<number | null>(null);
+  const [series, setSeries] = useState(1);
+
+  const handleClick = () => {
+    const now = Date.now();
+    setStatus("начато");
+    if (lastPress && now - lastPress > 60000) setSeries(s => 2);
+    setLastPress(now);
+  };
+
+  useEffect(() => {
+    if (!lastPress) return;
+    
+    const timer = setInterval(() => {
+      if (Date.now() - lastPress > 60000) {
+        setStatus(series >= 2 ? "закончено" : "не начато");
+        setSeries(s => 2);
+        setLastPress(null);
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [lastPress, series]);
+
   return (
     <View style={styles.container}>
-      <Header title="10:00" createBackButton />
+      <Header title="" createBackButton />
       <View style={styles.blocksContainer}>
-        <Block title="Серия" value="1" />
-        <Block title="Задание" value="начато" />
+        <Block title="Серия" value={series.toString()} />
+        <Block title="Задание" value={status} />
       </View>
-      <View style={styles.buttonContainer}>
-        <ActionButton label="Нажать" />
+      <View style={styles.button}>
+        <ActionButton label="Нажать" onClick={handleClick} />
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#ffffff", padding: 16 },
-  blocksContainer: { flexDirection: "row", justifyContent: "space-between", marginTop: 24 },
+  container: { flex: 1, backgroundColor: Colors.backgroundScreen },
+  blocksContainer: { flexDirection: "row", justifyContent: "space-between", padding: 16 },
   block: {
-    backgroundColor: "#FFFFFF", borderColor: Colors.secondary, borderWidth: 1, borderRadius: 16,
-    padding: 16, width: "48%", alignItems: "center", justifyContent: "center"
+    backgroundColor: "#FFFFFF", 
+    borderColor: Colors.secondary, 
+    borderWidth: 1, 
+    borderRadius: 16,
+    padding: 16, 
+    width: "48%", 
+    alignItems: "center", 
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 5,
   },
-  upperText: { fontSize: 18, fontFamily: "Montserrat-SemiBold", textAlign: "center" },
-  lowerText: { fontSize: 30, fontFamily: "Montserrat-Bold", textAlign: "center", marginTop: 4 },
-  buttonContainer: { position: "absolute", bottom: 40, alignItems: "center", left: 0, right: 0 }
-});
+  upperText: { 
+    fontSize: 18, 
+    fontFamily: "Montserrat-Bold", 
+    textAlign: "center",
+    color: Colors.headerText
+  },
+  lowerText: { 
+    fontSize: 22, 
+    fontFamily: "Montserrat-ExtraBold", 
+    textAlign: "center", 
+    marginTop: 4,
+    color: Colors.main
+  },
+  button: { 
+    position: "absolute", 
+    bottom: 40, 
+    alignSelf: "center" 
+  }
+})
