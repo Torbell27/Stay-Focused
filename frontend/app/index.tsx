@@ -28,7 +28,6 @@ export default function App() {
       }
     }
     prepare();
-
   }, []);
 
   const onLayoutRootView = useCallback(async () => {
@@ -45,7 +44,7 @@ export default function App() {
         alignItems: "center",
       }}
     >
-      <Text>ADHD Support App</Text>
+      <Text>Stay Focused</Text>
       <Text>👋</Text>
 
       <View style={{ gap: 12 }}>
