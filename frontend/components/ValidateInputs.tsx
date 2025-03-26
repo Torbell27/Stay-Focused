@@ -1,6 +1,6 @@
 export const filterNameText = (text: string): boolean => /^[A-Za-zА-Яа-яЁё]*$/.test(text);
 export const filterUsernameText = (text: string): boolean => /^[A-Za-z]*$/.test(text);
-export const filterPasswordText = (text: string): boolean => /^[A-Za-z0-9!@#$%^&*()_+=-]*$/.test(text);
+export const filterPasswordText = (text: string): boolean => /^(?:(?:(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]))|(?:(?=.*[a-z])(?=.*[A-Z])(?=.*[!\"#$%&'()*+,-.\/:;<=>?@[\]^_`{|}~]))|(?:(?=.*[0-9])(?=.*[A-Z])(?=.*[!\"#$%&'()*+,-.\/:;<=>?@[\]^_`{|}~]))|(?:(?=.*[0-9])(?=.*[a-z])(?=.*[!\"#$%&'()*+,-.\/:;<=>?@[\]^_`{|}~]))).{8,32}$/.test(text);
 export const filterEmailText = (text: string): boolean => /^[A-Za-z0-9@.]*$/.test(text);
 
 export const emailValidationRegex = /^[a-zA-Z0-9]+@[a-zA-Z]+\.[a-zA-Z]{2,}$/;
@@ -42,13 +42,13 @@ export const validateForm = (formData: any, isRegistration: boolean = true) => {
 
     if (!formData.username) {
         errors.username = 'Логин обязателен для заполнения';
-    } else if (formData.username.length < 6) { 
+    } else if (formData.username.length < 5) { 
         errors.username = 'Логин должен содержать не менее 5 символов';
     }
     if (!formData.password) {
         errors.password = 'Пароль обязателен для заполнения';
-    } else if (formData.password.length < 6) { 
-        errors.password = 'Пароль должен содержать не менее 5 символов';
+    } else if (formData.password.length < 8) { 
+        errors.password = 'Пароль должен содержать не менее 8 символов';
     }
 
     if (isRegistration) {

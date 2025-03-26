@@ -24,7 +24,7 @@ const StatisticsScreen: React.FC = () => {
     { date: "05.01.2025", time_stat: { "10": { timestamp_start: 36000, success: true, in_time: true, tap_count: [12, 15] } } },
     { date: "08.01.2025", time_stat: { "14": { timestamp_start: 50400, success: false, in_time: false, tap_count: [8, 10] } } },
     {
-      "date": "12.02.2025",
+      "date": "01.04.2025", // две записи с одинаковой датой 12.02.2025
       "time_stat":{
          "9":  {
            "timestamp_start": 32400,
@@ -90,9 +90,10 @@ const StatisticsScreen: React.FC = () => {
   };
 
   const handleSendPress = () => {
+    if (email){ //проверку надо
     setModalMessage(`Вы действительно хотите отправить на ${email}?`);
     setModalType("confirmation");
-    setModalVisible(true);
+    setModalVisible(true);}
   };
 
   const handleConfirmSend = () => {
@@ -199,14 +200,14 @@ const StatisticsScreen: React.FC = () => {
         visible={modalVisible}
         type={modalType}
         message={modalMessage}
-        onConfirm={handleConfirmSend}
+        onConfirm={ modalType == "confirmation" ? handleConfirmSend : handleModalClose} // самое простое решение
         onCancel={handleModalClose}
         confirmText="OK"
         cancelText="Отмена"
       />
 
-      {showCalendar && (
-        <Modal transparent animationType="slide" onRequestClose={() => setShowCalendar(null)}>
+      {showCalendar && (// мб все модальные окна будут с одинаковой анимацией?
+        <Modal transparent animationType="fade" onRequestClose={() => setShowCalendar(null)}> 
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <Calendar
