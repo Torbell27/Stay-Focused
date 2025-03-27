@@ -5,7 +5,7 @@ import router from "./routes/index.js";
 import pool from "./config/db.js";
 
 const port = process.env.SERVER_PORT || 3000;
-const address = process.env.SERVER_ADDRESS || 'locahost';
+const address = process.env.SERVER_ADDRESS || 'localhost';
 
 const app = express();
 
