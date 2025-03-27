@@ -10,7 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { Colors } from "@/constants/Colors";
-import Feather from '@expo/vector-icons/Feather';
+import Feather from "@expo/vector-icons/Feather";
 
 interface PatientInfoFieldProps {
   label: string;
@@ -23,8 +23,6 @@ const PatientInfoField: React.FC<PatientInfoFieldProps> = ({
   label,
   value,
 }) => {
-
-
   const copyToClipboard = () => {
     Clipboard.setString(value);
 
@@ -47,7 +45,8 @@ const PatientInfoField: React.FC<PatientInfoFieldProps> = ({
             onPress={copyToClipboard}
             accessibilityRole="button"
             accessibilityLabel={`Copy ${label} to clipboard`}
-          ><Feather name="copy" size={24} color={Colors.secondary} />
+          >
+            <Feather name="copy" size={24} color={Colors.secondary} />
           </TouchableOpacity>
         </View>
       </View>

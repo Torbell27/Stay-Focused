@@ -21,11 +21,11 @@ const PatientInfo = () => {
   };
 
   const handlePatientStatistics = () => {
-    router.push("/doctor/StatisticsScreen")
+    router.push("/doctor/StatisticsScreen");
   };
 
   const handlePatientAssignments = () => {
-    router.push("/doctor/TaskSettings")
+    router.push("/doctor/TaskSettings");
   };
 
   return (
@@ -33,17 +33,10 @@ const PatientInfo = () => {
       <Header title={patientName} createBackButton={true} />
 
       <View style={styles.content}>
-
         <View style={styles.infoContainer}>
-          <PatientInfoField
-            label="Логин"
-            value={patientData.login}
-          />
+          <PatientInfoField label="Логин" value={patientData.login} />
 
-          <PatientInfoField
-            label="Почта"
-            value={patientData.email}
-          />
+          <PatientInfoField label="Почта" value={patientData.email} />
         </View>
       </View>
 

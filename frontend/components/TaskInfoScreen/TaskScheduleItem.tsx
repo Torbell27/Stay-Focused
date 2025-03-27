@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Animated } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+} from "react-native";
 import { Colors } from "@/constants/Colors";
-import AntDesign from '@expo/vector-icons/AntDesign';
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 interface TaskScheduleItemProps {
   task: {
@@ -14,10 +20,10 @@ interface TaskScheduleItemProps {
   onToggle?: () => void;
 }
 
-const TaskScheduleItem: React.FC<TaskScheduleItemProps> = ({ 
-  task, 
+const TaskScheduleItem: React.FC<TaskScheduleItemProps> = ({
+  task,
   isExpanded = false,
-  onToggle 
+  onToggle,
 }) => {
   const [heightAnim] = useState(new Animated.Value(0));
   const [rotateAnim] = useState(new Animated.Value(0));
@@ -30,13 +36,13 @@ const TaskScheduleItem: React.FC<TaskScheduleItemProps> = ({
     Animated.timing(heightAnim, {
       toValue: isExpanded ? 1 : 0,
       duration: 300,
-      useNativeDriver: false
+      useNativeDriver: false,
     }).start();
-    
+
     Animated.timing(rotateAnim, {
       toValue: isExpanded ? 1 : 0,
       duration: 100,
-      useNativeDriver: false
+      useNativeDriver: false,
     }).start();
   }, [isExpanded]);
 
@@ -48,9 +54,9 @@ const TaskScheduleItem: React.FC<TaskScheduleItemProps> = ({
 
   return (
     <View style={[styles.container, isExpanded && styles.expandedContainer]}>
-      <TouchableOpacity 
-        activeOpacity={0.8} 
-        onPress={handlePress} 
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={handlePress}
         style={styles.timeBlock}
       >
         <Text style={[styles.timeText]}>{task.time}</Text>
@@ -62,11 +68,11 @@ const TaskScheduleItem: React.FC<TaskScheduleItemProps> = ({
                 {
                   rotate: rotateAnim.interpolate({
                     inputRange: [0, 1],
-                    outputRange: ["0deg", "180deg"]
-                  })
+                    outputRange: ["0deg", "180deg"],
+                  }),
                 },
-              ]
-            }
+              ],
+            },
           ]}
         >
           <AntDesign name="down" size={20} color="black" />
@@ -78,10 +84,12 @@ const TaskScheduleItem: React.FC<TaskScheduleItemProps> = ({
           {
             height: heightAnim.interpolate({
               inputRange: [0, 1],
-              outputRange: [0, 80]
+              outputRange: [0, 80],
             }),
-            backgroundColor: isExpanded ? "transparent" : Colors.backgroundScreen
-          }
+            backgroundColor: isExpanded
+              ? "transparent"
+              : Colors.backgroundScreen,
+          },
         ]}
       >
         {isExpanded && (
@@ -119,18 +127,17 @@ const styles = StyleSheet.create({
   timeText: {
     fontSize: 24,
     color: Colors.main,
-    fontWeight: "700"
+    fontWeight: "700",
   },
   icon: {
     width: 20,
     height: 20,
     display: "flex",
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   seriesContainer: {
     overflow: "hidden",
-
   },
   expandedContainer: {
     backgroundColor: "#F9F7F7",
@@ -146,7 +153,7 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     marginTop: 4,
     backgroundColor: "#F9F7F7",
-  }
+  },
 });
 
 export default TaskScheduleItem;
