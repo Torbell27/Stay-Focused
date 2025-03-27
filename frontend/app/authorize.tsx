@@ -1,3 +1,4 @@
+import * as SecureStore from 'expo-secure-store';
 import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import {
@@ -21,6 +22,8 @@ import TextField from "@/components/TextInputCustom";
 import { validateForm } from "@/components/ValidateInputs";
 import { checkCode } from "@/components/CheckErrorCode";
 import api from "@/scripts/api";
+import { useRouter } from "expo-router";
+import { storeTokens, getRoleFromToken } from '@/scripts/jwt';
 
 type AuthorizationData = {
   username: string;
@@ -31,11 +34,17 @@ interface RegistrationFieldsProps {
   errors: { [key: string]: string };
 }
 
+interface DecodedToken {
+  userId: string;
+  userRole: string;
+  exp: number;
+}
+
 const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({
   errors = {},
 }) => {
-  const { passwordVisibility, rightIcon, handlePasswordVisibility } =
-    useTogglePasswordVisibility();
+  const router = useRouter();
+  const { passwordVisibility, rightIcon, handlePasswordVisibility } = useTogglePasswordVisibility();
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
   const [error, setError] = useState<string>();
   const [authorizationData, setAuthorizationData] = useState<AuthorizationData>(
@@ -44,7 +53,6 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({
       password: "",
     }
   );
-  const [apiResponse, setApiResponse] = useState<string | null>(null);
 
   const handleChange = (field: keyof AuthorizationData) => (text: string) => {
     setAuthorizationData((prev) => ({ ...prev, [field]: text }));
@@ -63,7 +71,18 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({
     if (Object.keys(filteredErrors).length === 0) {
       api
         .auth(authorizationData)
-        .then((response) => setApiResponse(response))
+        .then((response) => {
+          const { accessToken, refreshToken } = response;
+          storeTokens(accessToken, refreshToken);
+          getRoleFromToken()
+            .then((userRole) => {
+              if (userRole != undefined || userRole != null) userRole == 0 ? router.push("/doctor/DoctorMain") : router.push("/patient/TaskInfoScreen")
+              else console.log('Failed to get user Role.');
+            })
+            .catch((error) => {
+              console.error('Error getting user role:', error);
+            });
+        })
         .catch((error) => {
           const err = checkCode(error.message);
           setError(err);

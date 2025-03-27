@@ -9,6 +9,9 @@ import Footer from "@/components/Footer";
 import { Colors } from "@/constants/Colors";
 import { useRouter } from "expo-router";
 import { validateForm } from "@/components/ValidateInputs";
+import api from "@/scripts/api";
+import { storeTokens, getIdFromToken } from '@/scripts/jwt';
+import { checkCode } from "@/components/CheckErrorCode";
 
 type RegistrationData = {
   firstName: string;
@@ -21,10 +24,11 @@ type RegistrationData = {
 
 const DoctorMain: React.FC = () => {
   const router = useRouter();
-  const [headerUserName, setHeaderUserName] = useState<string>("Иванова И. И.");
+  const [headerUserName, setHeaderUserName] = useState<string>("Имя Ф. О.");
   const [selc, setSelc] = useState<string>("patient_list");
   const [isKeyboardVisible, setIsKeyboardVisible] = useState<boolean>(false); 
-  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});  
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({}); 
+  const [error, setError] = useState<string>();
   const [registrationData, setRegistrationData] = useState<RegistrationData>({
     firstName: "",
     secondName: "",
@@ -32,6 +36,26 @@ const DoctorMain: React.FC = () => {
     username: "",
     password: "",
     email: "",
+  });
+
+  getIdFromToken()
+  .then((userId) => {
+    if (userId) 
+     api
+       .doctorName(userId)
+       .then((response) => {
+          const { userFirstname, userSurname, userLastname } = response;
+          const formattedFirstName = `${userSurname} ${userFirstname[0]}. ${userLastname[0]}.`;
+          setHeaderUserName(formattedFirstName);
+       })
+       .catch((error) => {
+         const err = checkCode(error.message);
+         setError(err);
+       });
+    else console.log('Failed to get user Role.');
+  })
+  .catch((error) => {
+    console.error('Error getting user role:', error);
   });
 
   useEffect(() => {
