@@ -1,5 +1,5 @@
 {
-  "name": "stay-focused",
+  "name": "stay-focused-frontend",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {

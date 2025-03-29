@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "stay-focused-backend",
   "version": "1.0.0",
   "description": "Stay Focused API",
   "main": "server.js",
