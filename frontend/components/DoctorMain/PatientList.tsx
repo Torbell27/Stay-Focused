@@ -53,7 +53,13 @@ const PatientList: React.FC<PatientListProps> = ({ doctorId }) => {
   }, [doctorId]);
 
   const handlePatientChoose = (patient: Patient) => {
-    // router.push(`/PatientInfo?patientId=${patient.id}`);
+    router.push({
+      pathname: "/doctor/PatientInfo",
+      params: {
+        id: patient.patient_id,
+        data: JSON.stringify(patient), 
+      },
+    });
   };
 
   if (loading) {
