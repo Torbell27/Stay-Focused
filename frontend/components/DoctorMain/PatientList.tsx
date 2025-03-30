@@ -12,10 +12,10 @@ import api from "@/scripts/api";
 import { useRouter } from "expo-router";
 
 interface Patient {
-  id: string;
-  firstName: string;
-  lastName: string;
-  patronymic: string;
+  patient_id: string;
+  firstname: string;
+  surname: string;
+  lastname: string;
 }
 
 interface PatientListProps {
@@ -78,12 +78,12 @@ const PatientList: React.FC<PatientListProps> = ({ doctorId }) => {
         style={styles.list}
         data={patients}
         contentContainerStyle={{ gap: 12 }}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.patient_id}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.item} onPress={() => handlePatientChoose(item)}>
             <View style={styles.textContainer}>
               <Text style={styles.text}>
-                {item.firstName} {item.lastName} {item.patronymic}
+                {item.firstname} {item.surname} {item.lastname}
               </Text>
             </View>
             <AntDesign name="right" size={24} color={Colors.secondary} />

@@ -49,8 +49,7 @@ const DoctorMain: React.FC = () => {
           api
             .doctorName(userId)
             .then((response) => {
-              const { userFirstname, userSurname, userLastname } = response;
-              const formattedFirstName = `${userSurname} ${userFirstname[0]}. ${userLastname[0]}.`;
+              const formattedFirstName = `${response.surname} ${response.firstname[0]}. ${response.lastname[0]}.`;
               setHeaderUserName(formattedFirstName);
             })
             .catch((error) => {
@@ -111,13 +110,11 @@ const DoctorMain: React.FC = () => {
           console.log("Успешная регистрация:", response);
           showModal("confirmed");
         } else {
-          console.error("Ошибка регистрации:", response.message); 
-          setError(response.message || "Ошибка при регистрации пациента");
+          setError("Ошибка при регистрации пациента");
           showModal("error");
         }
       }
     } catch (error) {
-      console.error("Ошибка при регистрации пациента:", error);
       setError("Ошибка при регистрации пациента");
       showModal("error");
     }
