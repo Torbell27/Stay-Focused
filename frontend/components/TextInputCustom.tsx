@@ -125,10 +125,10 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     fontFamily: 'Montserrat-Regular',
     fontSize: 16,
-    textAlignVertical:"bottom",
     height: 50,
     backgroundColor: Colors.primary,
-    paddingBottom: 4
+    paddingBottom: 1,
+    includeFontPadding: false,
   },
   labelContainer: {
     position: 'absolute',

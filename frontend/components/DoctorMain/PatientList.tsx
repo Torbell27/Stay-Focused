@@ -8,33 +8,57 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Colors } from "@/constants/Colors";
+import api from "@/scripts/api";
+import { useRouter } from "expo-router";
 
 interface Patient {
-  id: string;
-  firstName: string;
-  lastName: string;
-  patronymic: string;
+  patient_id: string;
+  firstname: string;
+  surname: string;
+  lastname: string;
 }
 
-const PatientList: React.FC = () => {
+interface PatientListProps {
+  doctorId: string;  
+}
+
+const PatientList: React.FC<PatientListProps> = ({ doctorId }) => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    try {
-      const data = require("@/components/DoctorMain/patients.json");
-      setPatients(data);
-      setLoading(false);
-    } catch (error) {
-      setError("Ошибка загрузки данных");
-      setLoading(false);
-    }
-  }, []);
+    console.log("Doctor ID:", doctorId); 
+    const fetchPatients = async () => {
+      try {
+        const data = await api.getPatients(doctorId);  
+        console.log(data); 
+  
+        if (data && data.length > 0) {
+          setPatients(data);  
+        } else {
+          setError("Нет пациентов для отображения.");  
+        }
+  
+        setLoading(false);  
+      } catch (error) {
+        console.log(error)
+        setError("Ошибка загрузки данных");  
+        setLoading(false);  
+      }
+    };
+  
+    fetchPatients();  
+  }, [doctorId]);
+
+  const handlePatientChoose = (patient: Patient) => {
+    // router.push(`/PatientInfo?patientId=${patient.id}`);
+  };
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <View style={styles.message}>
         <Text>Загрузка...</Text>
       </View>
     );
@@ -42,7 +66,7 @@ const PatientList: React.FC = () => {
 
   if (error) {
     return (
-      <View style={styles.container}>
+      <View style={styles.message}>
         <Text>Ошибка: {error}</Text>
       </View>
     );
@@ -54,12 +78,12 @@ const PatientList: React.FC = () => {
         style={styles.list}
         data={patients}
         contentContainerStyle={{ gap: 12 }}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.patient_id}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.item}>
+          <TouchableOpacity style={styles.item} onPress={() => handlePatientChoose(item)}>
             <View style={styles.textContainer}>
               <Text style={styles.text}>
-                {item.firstName} {item.lastName} {item.patronymic}
+                {item.firstname} {item.surname} {item.lastname}
               </Text>
             </View>
             <AntDesign name="right" size={24} color={Colors.secondary} />
@@ -71,6 +95,12 @@ const PatientList: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  message: {
+    paddingTop: 20,
+    fontFamily: "Montserrat-SemiBold",
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
     flex: 1,
     paddingTop: 20,
@@ -95,7 +125,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: Colors.headerText,
-    fontSize: 18,
+    fontSize: 20,
     fontFamily: "Montserrat-SemiBold",
   },
 });
