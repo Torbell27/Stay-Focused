@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, KeyboardAvoidingView, ScrollView, Keyboard, Platform } from "react-native";
+import { View, StyleSheet, ScrollView, Keyboard } from "react-native";
 import Header from "@/components/Header";
 import RegistrationForm from "@/components/DoctorMain/RegistrationForm";
 import PatientList from "@/components/DoctorMain/PatientList";
@@ -12,6 +12,7 @@ import { validateForm } from "@/components/ValidateInputs";
 import api from "@/scripts/api";
 import { storeTokens, getIdFromToken } from '@/scripts/jwt';
 import { checkCode } from "@/components/CheckErrorCode";
+import ModalWindow from "@/components/ModalWindow";
 
 type RegistrationData = {
   firstName: string;
@@ -29,6 +30,8 @@ const DoctorMain: React.FC = () => {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState<boolean>(false); 
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({}); 
   const [error, setError] = useState<string>();
+  const [modalType, setModalType] = useState<"logout" | "register" | "confirmed" | "error" | null>(null);
+  const [doctorId, setDoctorId] = useState<string | null>(null);
   const [registrationData, setRegistrationData] = useState<RegistrationData>({
     firstName: "",
     secondName: "",
@@ -38,25 +41,30 @@ const DoctorMain: React.FC = () => {
     email: "",
   });
 
-  getIdFromToken()
-  .then((userId) => {
-    if (userId) 
-     api
-       .doctorName(userId)
-       .then((response) => {
-          const { userFirstname, userSurname, userLastname } = response;
-          const formattedFirstName = `${userSurname} ${userFirstname[0]}. ${userLastname[0]}.`;
-          setHeaderUserName(formattedFirstName);
-       })
-       .catch((error) => {
-         const err = checkCode(error.message);
-         setError(err);
-       });
-    else console.log('Failed to get user Role.');
-  })
-  .catch((error) => {
-    console.error('Error getting user role:', error);
-  });
+  useEffect(() => {
+    getIdFromToken()
+      .then((userId) => {
+        if (userId) {
+          setDoctorId(userId); 
+          api
+            .doctorName(userId)
+            .then((response) => {
+              const { userFirstname, userSurname, userLastname } = response;
+              const formattedFirstName = `${userSurname} ${userFirstname[0]}. ${userLastname[0]}.`;
+              setHeaderUserName(formattedFirstName);
+            })
+            .catch((error) => {
+              const err = checkCode(error.message);
+              setError(err);
+            });
+        } else {
+          console.log('Failed to get user Role.');
+        }
+      })
+      .catch((error) => {
+        console.error('Error getting user role:', error);
+      });
+  }, []);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -72,30 +80,75 @@ const DoctorMain: React.FC = () => {
     };
   }, []);
 
-  const handleRegister = () => {
-    const errors = validateForm(registrationData, true);  
-    
-    const filteredErrors = Object.fromEntries(
-      Object.entries(errors).map(([key, value]) => [key, value || ""]) 
-    );
-
-    setFormErrors(filteredErrors);  
-
-    if (Object.keys(filteredErrors).length === 0) {
-      console.log(registrationData);
-    }
-  };
-
   const handleFormChange = (data: RegistrationData) => {
     setRegistrationData(data);
   };
 
-  const handleLogout = () => {
+  const handleRegister = () => {
+    const errors = validateForm(registrationData, true);
+    const filteredErrors = Object.fromEntries(
+      Object.entries(errors).map(([key, value]) => [key, value || ""])
+    );
+    setFormErrors(filteredErrors);
+  
+    if (Object.keys(filteredErrors).length === 0) {
+      setModalType("register");
+      console.log(registrationData);
+    }
+  };
+  
+  const showModal = (type: "logout" | "register" | "confirmed" | "error" | null) => setModalType(type);
+  const handleRegistrationConfirm = async () => {
+    try {
+      if (doctorId && registrationData) {
+        console.log("Данные регистрации:", { doctorId, ...registrationData }); 
+        const response = await api.registerPatient({
+          doctorId: doctorId,
+          ...registrationData,
+        })
+
+        if (response.status === "success") {
+          console.log("Успешная регистрация:", response);
+          showModal("confirmed");
+        } else {
+          console.error("Ошибка регистрации:", response.message); 
+          setError(response.message || "Ошибка при регистрации пациента");
+          showModal("error");
+        }
+      }
+    } catch (error) {
+      console.error("Ошибка при регистрации пациента:", error);
+      setError("Ошибка при регистрации пациента");
+      showModal("error");
+    }
+  };
+  const handleLogout = () => showModal("logout");
+  const handleLogoutConfirm = () => {
+    showModal(null);
     router.back();
   };
 
   return (
     <View style={styles.container}>
+       {["logout", "register", "confirmed", "error"].map((type) => (
+      <ModalWindow
+        key={type}
+        visible={modalType === type}
+        type={type === "confirmed" || type === "error" ? "information" : "confirmation"}
+        message={
+          type === "logout" ? "Вы действительно хотите выйти?" :
+          type === "register" ? "Вы действительно хотите зарегистрировать?" :
+          type === "confirmed" ? "Пользователь успешно зарегистрирован" :
+          type === "error" ? "Ошибка при регистрации пациента":
+          "Ошибка при регистрации пациента"
+        }
+        onConfirm={type === "logout" ? handleLogoutConfirm : type === "register" ? handleRegistrationConfirm : () => showModal(null)}
+        onCancel={() => showModal(null)}
+        confirmText={type === "register" ? "Зарегистрировать" : type === "logout" ? "Выйти" : "Ок"}
+        cancelText={type === "logout" || type === "register" ? "Отмена" : ""}
+      />
+    ))}
+
       <Header
         title={headerUserName}
         createBackButton={false}
@@ -114,13 +167,13 @@ const DoctorMain: React.FC = () => {
         />
       </View>
 
-      {selc === "patient_list" && (
+      {selc === "patient_list" && doctorId &&  (
         <View style={styles.list}>
-          <PatientList />
+          <PatientList doctorId={doctorId}/>
         </View>
       )}
 
-  {selc === "patient_registration" && (
+      {selc === "patient_registration" && (
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
               <RegistrationForm
                   onFormChange={handleFormChange}
@@ -138,13 +191,31 @@ const DoctorMain: React.FC = () => {
                 />
               )}
           </ScrollView>
-  )}
+      )}
 
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  successMessageContainer: {
+    position: "absolute",
+    top: "50%", 
+    left: 0,
+    right: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10, 
+  },
+  successMessage: {
+    color: Colors.headerText,
+    fontSize: 18,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    fontFamily: "Montserrat-SemiBold",
+    textAlign: "center",
+  },
   container: {
     display: "flex",
     flexDirection: "column",

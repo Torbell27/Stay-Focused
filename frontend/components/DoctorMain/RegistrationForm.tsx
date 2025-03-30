@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
-  TextInput,
   StyleSheet,
   Text,
   Pressable,
-  Keyboard,
-  TouchableWithoutFeedback,
   KeyboardAvoidingView,
   ScrollView,
   Platform,
@@ -116,8 +113,7 @@ const RegistrationForm: React.FC<RegistrationFieldsProps> = ({
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <KeyboardAvoidingView
+    <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.container}
       >
@@ -129,8 +125,7 @@ const RegistrationForm: React.FC<RegistrationFieldsProps> = ({
           {renderInput("password", "Пароль", filterPasswordText, true)}
           {renderInput("email", "Email", filterEmailText)}
         </ScrollView>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 

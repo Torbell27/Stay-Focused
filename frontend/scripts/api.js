@@ -29,4 +29,27 @@ export default {
       throw new Error("Неизвестная ошибка");
     }
   },
+  getPatients: async (doctorId) => {
+    try {
+      const response = await api.get(`/doctor/${doctorId}/patients`);
+      return response.data; 
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.status || 'Неизвестная ошибка');
+      }
+      throw new Error('Неизвестная ошибка');
+    }
+  },
+
+  registerPatient: async (registrationData) => {
+    try {
+      const response = await api.post('/doctor/sign_up', registrationData);
+      return response.data;  
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.status || 'Неизвестная ошибка');
+      }
+      throw new Error('Неизвестная ошибка');
+    }
+  },
 };

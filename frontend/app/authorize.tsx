@@ -1,4 +1,3 @@
-import * as SecureStore from 'expo-secure-store';
 import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import {
@@ -19,7 +18,7 @@ import {
 import FooterButton from "@/components/FooterButton";
 import Footer from "@/components/Footer";
 import TextField from "@/components/TextInputCustom";
-import { validateForm } from "@/components/ValidateInputs";
+import { filterUsernameText, filterPasswordText, validateForm } from "@/components/ValidateInputs";
 import { checkCode } from "@/components/CheckErrorCode";
 import api from "@/scripts/api";
 import { useRouter } from "expo-router";
@@ -32,12 +31,6 @@ type AuthorizationData = {
 
 interface RegistrationFieldsProps {
   errors: { [key: string]: string };
-}
-
-interface DecodedToken {
-  userId: string;
-  userRole: string;
-  exp: number;
 }
 
 const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({
@@ -54,8 +47,16 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({
     }
   );
 
+  const validationMap = {
+      username: filterUsernameText,
+      password: filterPasswordText,
+    };
+
   const handleChange = (field: keyof AuthorizationData) => (text: string) => {
-    setAuthorizationData((prev) => ({ ...prev, [field]: text }));
+      const validate = validationMap[field];
+      if (validate(text)) {
+        setAuthorizationData((prev)  => ({ ...prev, [field]: text }));
+      }
   };
 
   const handleAuthorize = async () => {
