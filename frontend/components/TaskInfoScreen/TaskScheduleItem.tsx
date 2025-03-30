@@ -9,24 +9,44 @@ import {
 import { Colors } from "@/constants/Colors";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
+interface StatItem {
+  timestamp_start: number;
+  success: boolean;
+  in_time: boolean;
+  tap_count: number[];
+}
+
 interface TaskScheduleItemProps {
-  task: {
+  id?: string;
+  isExpanded?: boolean;
+  onToggle?: () => void;
+
+  date?: string;
+  time_stat?: {
+    [key: string]: StatItem | undefined;
+  };
+  formatTime?: (timestamp: number) => string;
+
+  task?: {
     id: string;
     time: string;
     series1: string;
     series2: string;
   };
-  isExpanded?: boolean;
-  onToggle?: () => void;
 }
 
 const TaskScheduleItem: React.FC<TaskScheduleItemProps> = ({
-  task,
+  id,
+  date,
+  time_stat,
   isExpanded = false,
   onToggle,
+  formatTime,
+  task,
 }) => {
   const [heightAnim] = useState(new Animated.Value(0));
   const [rotateAnim] = useState(new Animated.Value(0));
+
   useEffect(() => {
     heightAnim.setValue(isExpanded ? 1 : 0);
     rotateAnim.setValue(isExpanded ? 1 : 0);
@@ -52,14 +72,19 @@ const TaskScheduleItem: React.FC<TaskScheduleItemProps> = ({
     }
   };
 
+  const isStatisticsMode = !!date && !!time_stat && !!formatTime;
+  const isTaskInfoMode = !!task;
+
   return (
     <View style={[styles.container, isExpanded && styles.expandedContainer]}>
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={handlePress}
-        style={styles.timeBlock}
+        style={styles.header}
       >
-        <Text style={[styles.timeText]}>{task.time}</Text>
+        <Text style={styles.headerText}>
+          {isStatisticsMode ? date : task?.time}
+        </Text>
         <Animated.View
           style={[
             styles.icon,
@@ -78,26 +103,59 @@ const TaskScheduleItem: React.FC<TaskScheduleItemProps> = ({
           <AntDesign name="down" size={20} color="black" />
         </Animated.View>
       </TouchableOpacity>
+
       <Animated.View
         style={[
-          styles.seriesContainer,
+          styles.contentContainer,
           {
             height: heightAnim.interpolate({
               inputRange: [0, 1],
-              outputRange: [0, 80],
+              outputRange: [
+                0,
+                isStatisticsMode
+                  ? Object.keys(time_stat || {}).length * 100
+                  : 80,
+              ],
             }),
-            backgroundColor: isExpanded
-              ? "transparent"
-              : Colors.backgroundScreen,
           },
         ]}
       >
-        {isExpanded && (
-          <>
-            <Text style={[styles.seriesText]}>{task.series1}</Text>
-            <Text style={[styles.seriesText]}>{task.series2}</Text>
-          </>
-        )}
+        {isExpanded &&
+          (isStatisticsMode ? (
+            Object.entries(time_stat || {})
+              .filter(([_, stat]) => stat !== undefined)
+              .map(([time, stat]) => (
+                <View key={time} style={styles.timeItem}>
+                  <View style={styles.timeHeader}>
+                    <Text style={styles.timeText}>
+                      {formatTime!(stat!.timestamp_start)}
+                    </Text>
+                    <AntDesign
+                      name={stat!.success ? "checkcircleo" : "closecircleo"}
+                      size={20}
+                      color={stat!.success ? "#1BCD1B" : "#F47272"}
+                      style={styles.icon}
+                    />
+                    <AntDesign
+                      name="clockcircleo"
+                      size={20}
+                      color={stat!.in_time ? "#1BCD1B" : "#F47272"}
+                    />
+                  </View>
+                  <Text style={styles.seriesText}>
+                    1-ая серия: {stat!.tap_count[0]} нажатий
+                  </Text>
+                  <Text style={styles.seriesText}>
+                    2-ая серия: {stat!.tap_count[1]} нажатий
+                  </Text>
+                </View>
+              ))
+          ) : isTaskInfoMode ? (
+            <>
+              <Text style={styles.seriesText}>{task?.series1}</Text>
+              <Text style={styles.seriesText}>{task?.series2}</Text>
+            </>
+          ) : null)}
       </Animated.View>
     </View>
   );
@@ -108,51 +166,55 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "stretch",
-    paddingVertical: 20,
+    paddingVertical: 10,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderColor: "#E5E7EB",
     backgroundColor: Colors.backgroundScreen,
-    marginLeft: 20,
-    marginRight: 20,
-    marginBottom: 20,
+    marginBottom: 16,
   },
-  timeBlock: {
-    display: "flex",
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 10,
+  },
+  headerText: {
+    fontSize: 24,
+    fontFamily: "Montserrat-Bold",
+    color: Colors.main,
+  },
+  timeItem: {
+    padding: 10,
+    backgroundColor: "#F9F7F7",
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  timeHeader: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     marginBottom: 8,
   },
   timeText: {
-    fontSize: 24,
-    color: Colors.main,
-    fontWeight: "700",
+    fontSize: 16,
+    fontFamily: "Montserrat-Bold",
+    color: Colors.headerText,
+    marginRight: 10,
   },
   icon: {
-    width: 20,
-    height: 20,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
+    marginRight: 10,
   },
-  seriesContainer: {
+  seriesText: {
+    fontSize: 16,
+    fontFamily: "Montserrat-Regular",
+    color: Colors.headerText,
+    marginBottom: 4,
+  },
+  contentContainer: {
     overflow: "hidden",
   },
   expandedContainer: {
     backgroundColor: "#F9F7F7",
     elevation: 3,
-    marginLeft: 0,
-    marginRight: 0,
-    paddingLeft: 36,
-    paddingRight: 36,
-  },
-  seriesText: {
-    fontSize: 16,
-    color: Colors.headerText,
-    fontWeight: "400",
-    marginTop: 4,
-    backgroundColor: "#F9F7F7",
   },
 });
 
