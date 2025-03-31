@@ -29,8 +29,9 @@ export const getPatients = async (req, res) => {
         if (request.rows.length > 0) {
             return res.status(200).json(request.rows);
         }
-        else
+        else {
             return res.status(404).json({ message: 'No patients found for this doctor' });
+        }
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: 'Server error' });

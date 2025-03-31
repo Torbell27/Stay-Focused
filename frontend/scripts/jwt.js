@@ -11,6 +11,8 @@ export const storeTokens = async (accessToken, refreshToken) => {
   } catch (error) {
     console.log('Ошибка сохранения токенов:', error);
   }
+  // await SecureStore.deleteItemAsync('accessToken');
+  // await SecureStore.deleteItemAsync('refreshToken');
 };
 
 export const getTokenFromSecureStore = async (key) => {

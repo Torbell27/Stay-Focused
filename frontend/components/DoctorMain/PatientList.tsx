@@ -10,7 +10,7 @@ import {
 import { Colors } from "@/constants/Colors";
 import api from "@/scripts/api";
 import { useRouter } from "expo-router";
-import LoadingModal from "../LoadingModal";
+import LoadingModal from "@/components/LoadingModal";
 
 interface Patient {
   patient_id: string;

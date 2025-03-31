@@ -21,7 +21,7 @@ const authenticate = (req, res, next) => {
                         const userId = decodedRefresh.userId;
                         const userRole = decodedRefresh.userRole;
 
-                        const newAccessToken = sign({ userId, userRole }, process.env.SESSION_SECRET_KEY, { expiresIn: '1d' });
+                        const newAccessToken = sign({ userId, userRole }, process.env.SESSION_SECRET_KEY, { expiresIn: '10s' });
                         res.setHeader('newaccesstoken', newAccessToken);
 
                         req.userId = userId;
@@ -33,7 +33,7 @@ const authenticate = (req, res, next) => {
                 } else {
                     req.userId = null;
                     req.userRole = null;
-                    return res.status(401).json({ message: 'Refresh token missing.' });
+                    return next();
                 }
             } else {
                 req.userId = decoded.userId;
@@ -46,13 +46,13 @@ const authenticate = (req, res, next) => {
             if (err) {
                 req.userId = null;
                 req.userRole = null;
-                return res.status(401).json({ message: 'Invalid refresh token.' });
+                return next();
             }
 
             const userId = decodedRefresh.userId;
             const userRole = decodedRefresh.userRole;
 
-            const newAccessToken = sign({ userId, userRole }, process.env.SESSION_SECRET_KEY, { expiresIn: '1d' });
+            const newAccessToken = sign({ userId, userRole }, process.env.SESSION_SECRET_KEY, { expiresIn: '10s' });
             res.setHeader('newaccesstoken', newAccessToken);
 
             req.userId = userId;
@@ -64,7 +64,7 @@ const authenticate = (req, res, next) => {
     } else {
         req.userId = null;
         req.userRole = null;
-        return res.status(401).json({ message: 'Access token and refresh token are missing.' });
+        return next();
     }
 };
 

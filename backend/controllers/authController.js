@@ -16,7 +16,7 @@ export const sign_in = async (req, res) => {
         const userRole = request2.rows[0].role;
 
         const refreshToken = sign({ userId: userId, userRole: userRole }, process.env.SESSION_SECRET_KEY, { expiresIn: '15d' });
-        const accessToken = sign({ userId: userId, userRole: userRole }, process.env.SESSION_SECRET_KEY, { expiresIn: '1d' });
+        const accessToken = sign({ userId: userId, userRole: userRole }, process.env.SESSION_SECRET_KEY, { expiresIn: '10s' });
 
         console.log(`user: ${userId} authorized.`);
         return res.status(200).json({ accessToken, refreshToken });

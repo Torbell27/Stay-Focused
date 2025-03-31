@@ -29,15 +29,13 @@ api.interceptors.response.use(
     return response;
   },
   async (error) => {
-    // console.log(error.response);
+      // console.log(error.response);
 
-    if (error.response?.status === 403) {
-      const newAccessToken = error.response?.accessToken;
-      if (newAccessToken)
+      const newAccessToken = error.response?.headers['newaccesstoken'];
+      if (newAccessToken && newAccessToken != 'null')
         storeTokens(newAccessToken, null);
-    }
 
-    return Promise.reject(error);
+    return;
   }
 );
 
