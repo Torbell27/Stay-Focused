@@ -7,7 +7,7 @@ function authenticate(req, res, next) {
   if (!token) return res.sendStatus(401);
 
   verify(token, process.env.SESSION_SECRET_KEY, (err, user) => {
-    if (err) return res.sendStatus(403);
+    if (err) return res.sendStatus(401);
     req.userId = user.id;
     req.userRole = user.role;
     next();

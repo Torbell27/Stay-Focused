@@ -1,11 +1,11 @@
 import pool from "../config/db.js";
 import pkg from "jsonwebtoken";
 
-const { sign } = pkg;
+const { verify, sign } = pkg;
 
 function generateTokens(user) {
   const accessToken = sign(user, process.env.SESSION_SECRET_KEY, {
-    expiresIn: "15m",
+    expiresIn: "5s",
   });
   const refreshToken = sign(user, process.env.SESSION_SECRET_KEY, {
     expiresIn: "7d",
@@ -38,13 +38,13 @@ const login = async (req, res) => {
 };
 
 const refresh = async (req, res) => {
-  const { refreshToken } = req.headers;
-  if (!refreshToken) return res.sendStatus(403);
+  const refreshToken = req.headers["refresh-token"];
+  if (!refreshToken) return res.sendStatus(401);
 
-  jwt.verify(refreshToken, process.env.SESSION_SECRET_KEY, (err, user) => {
-    if (err) return res.sendStatus(403);
+  verify(refreshToken, process.env.SESSION_SECRET_KEY, (err, user) => {
+    if (err) return res.sendStatus(401);
     const tokens = generateTokens({ id: user.id, role: user.role });
-    res.json(tokens);
+    res.status(200).json(tokens);
   });
 };
 

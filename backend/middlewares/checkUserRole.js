@@ -8,7 +8,7 @@ function checkUserRole(role) {
     if (!token) return res.sendStatus(401);
 
     verify(token, process.env.SESSION_SECRET_KEY, (err, user) => {
-      if (err || parseInt(user.role) !== role) return res.sendStatus(403);
+      if (err || parseInt(user.role) !== role) return res.sendStatus(401);
       next();
     });
   };

@@ -12,9 +12,15 @@ const api = axios.create({
 async function refreshToken() {
   const refreshToken = await getTokenFromSecureStore("refreshToken");
   if (refreshToken) {
-    const response = await api.post("/refresh", null, {
-      headers: { refreshToken },
-    });
+    const response = await api.post(
+      "/auth/refresh",
+      {},
+      {
+        headers: {
+          "refresh-token": refreshToken,
+        },
+      }
+    );
     await storeTokenInSecureStore("accessToken", response.data.accessToken);
     return response.data.accessToken;
   }
