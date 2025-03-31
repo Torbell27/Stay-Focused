@@ -33,19 +33,24 @@ const ModalWindow: React.FC<ModalWindowProps> = ({
       <View style={styles.overlay}>
         <View style={styles.container}>
           <Text style={styles.message}>{message}</Text>
-          
+
           <View style={styles.buttonsContainer}>
             {type === "confirmation" && (
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.button, styles.cancelButton]}
                 onPress={onCancel}
               >
                 <Text style={styles.buttonText}>{cancelText}</Text>
               </TouchableOpacity>
             )}
-            
-            <TouchableOpacity 
-              style={[styles.button, type === "information" ? styles.infoButton : styles.confirmButton]}
+
+            <TouchableOpacity
+              style={[
+                styles.button,
+                type === "information"
+                  ? styles.infoButton
+                  : styles.confirmButton,
+              ]}
               onPress={onConfirm}
             >
               <Text style={styles.buttonText}>{confirmText}</Text>
@@ -85,7 +90,7 @@ const styles = StyleSheet.create({
   },
   button: {
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     borderRadius: 10,
     minWidth: 100,
     alignItems: "center",
@@ -95,7 +100,7 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     backgroundColor: Colors.main,
-    opacity: 0.50,
+    opacity: 0.5,
   },
   infoButton: {
     backgroundColor: Colors.main,
@@ -103,6 +108,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: Colors.primary,
+    fontFamily: "Montserrat-Regular",
     fontWeight: "500",
   },
 });

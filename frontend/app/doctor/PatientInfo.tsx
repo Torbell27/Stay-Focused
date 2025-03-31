@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FooterButton from "@/components/FooterButton";
@@ -9,16 +9,16 @@ import PatientInfoField from "@/components/PatientInfo/PatientInfoField";
 
 const PatientInfo = () => {
   const router = useRouter();
-  const [patientName, setPatientName] = useState("Смирнова Н. В.");
+  const params = useLocalSearchParams();
 
-  const patientData = {
-    login: "smirnova",
-    email: "smirnova@mail.com",
-  };
-
-  const handleBack = () => {
-    router.back();
-  };
+  const {
+    firstname = "",
+    surname = "",
+    lastname = "",
+    login = "",
+    email = "",
+    id = "",
+  } = params;
 
   const handlePatientStatistics = () => {
     router.push("/doctor/StatisticsScreen");
@@ -27,16 +27,16 @@ const PatientInfo = () => {
   const handlePatientAssignments = () => {
     router.push("/doctor/TaskSettings");
   };
+  const formattedFirstName = `${surname} ${firstname[0]}. ${lastname[0]}.`;
 
   return (
     <View style={styles.container}>
-      <Header title={patientName} createBackButton={true} />
+      <Header title={formattedFirstName} createBackButton={true} />
 
       <View style={styles.content}>
         <View style={styles.infoContainer}>
-          <PatientInfoField label="Логин" value={patientData.login} />
-
-          <PatientInfoField label="Почта" value={patientData.email} />
+          <PatientInfoField label="Логин" value={login} />
+          <PatientInfoField label="Почта" value={email} />
         </View>
       </View>
 
