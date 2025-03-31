@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import AntDesign from '@expo/vector-icons/AntDesign';
+import AntDesign from "@expo/vector-icons/AntDesign";
 import {
   View,
   FlatList,
@@ -10,46 +10,49 @@ import {
 import { Colors } from "@/constants/Colors";
 import api from "@/scripts/api";
 import { useRouter } from "expo-router";
+import LoadingModal from "../LoadingModal";
 
 interface Patient {
   patient_id: string;
   firstname: string;
   surname: string;
   lastname: string;
+  login: string;
+  email: string;
 }
 
 interface PatientListProps {
-  doctorId: string;  
+  doctorId: string;
 }
 
 const PatientList: React.FC<PatientListProps> = ({ doctorId }) => {
   const [patients, setPatients] = useState<Patient[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [isLoading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    console.log("Doctor ID:", doctorId); 
+    console.log("Doctor ID:", doctorId);
     const fetchPatients = async () => {
       try {
         const data = await api.getPatients();  
         console.log(data); 
   
         if (data && data.length > 0) {
-          setPatients(data);  
+          setPatients(data);
         } else {
-          setError("Нет пациентов для отображения.");  
+          setError("Нет пациентов для отображения.");
         }
-  
-        setLoading(false);  
+
+        setLoading(false);
       } catch (error) {
-        console.log(error)
-        setError("Ошибка загрузки данных");  
-        setLoading(false);  
+        console.log(error);
+        setError("Ошибка загрузки данных");
+        setLoading(false);
       }
     };
-  
-    fetchPatients();  
+
+    fetchPatients();
   }, [doctorId]);
 
   const handlePatientChoose = (patient: Patient) => {
@@ -57,19 +60,14 @@ const PatientList: React.FC<PatientListProps> = ({ doctorId }) => {
       pathname: "/doctor/PatientInfo",
       params: {
         id: patient.patient_id,
-        data: JSON.stringify(patient), 
+        firstname: patient.firstname,
+        surname: patient.surname,
+        lastname: patient.lastname,
+        login: patient.login,
+        email: patient.email,
       },
     });
   };
-
-  if (loading) {
-    return (
-      <View style={styles.message}>
-        <Text>Загрузка...</Text>
-      </View>
-    );
-  }
-
   if (error) {
     return (
       <View style={styles.message}>
@@ -80,22 +78,30 @@ const PatientList: React.FC<PatientListProps> = ({ doctorId }) => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        style={styles.list}
-        data={patients}
-        contentContainerStyle={{ gap: 12 }}
-        keyExtractor={(item) => item.patient_id}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.item} onPress={() => handlePatientChoose(item)}>
-            <View style={styles.textContainer}>
-              <Text style={styles.text}>
-                {item.firstname} {item.surname} {item.lastname}
-              </Text>
-            </View>
-            <AntDesign name="right" size={24} color={Colors.secondary} />
-          </TouchableOpacity>
-        )}
-      />
+      <View style={styles.message}>
+        <LoadingModal visible={isLoading} />
+      </View>
+      {!isLoading && (
+        <FlatList
+          style={styles.list}
+          data={patients}
+          contentContainerStyle={{ gap: 12 }}
+          keyExtractor={(item) => item.patient_id}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() => handlePatientChoose(item)}
+            >
+              <View style={styles.textContainer}>
+                <Text style={styles.text}>
+                  {item.firstname} {item.surname} {item.lastname}
+                </Text>
+              </View>
+              <AntDesign name="right" size={24} color={Colors.secondary} />
+            </TouchableOpacity>
+          )}
+        />
+      )}
     </View>
   );
 };
@@ -104,8 +110,8 @@ const styles = StyleSheet.create({
   message: {
     paddingTop: 20,
     fontFamily: "Montserrat-SemiBold",
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   container: {
     flex: 1,
