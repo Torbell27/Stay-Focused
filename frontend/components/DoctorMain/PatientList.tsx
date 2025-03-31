@@ -17,6 +17,8 @@ interface Patient {
   firstname: string;
   surname: string;
   lastname: string;
+  login: string;
+  email: string;
 }
 
 interface PatientListProps {
@@ -58,7 +60,9 @@ const PatientList: React.FC<PatientListProps> = ({ doctorId }) => {
       pathname: "/doctor/PatientInfo",
       params: {
         id: patient.patient_id,
-        data: JSON.stringify(patient),
+        firstname: patient.firstname,
+        login: patient.login,
+        email: patient.email,
       },
     });
   };
