@@ -61,6 +61,8 @@ const PatientList: React.FC<PatientListProps> = ({ doctorId }) => {
       params: {
         id: patient.patient_id,
         firstname: patient.firstname,
+        surname: patient.surname,
+        lastname: patient.lastname,
         login: patient.login,
         email: patient.email,
       },

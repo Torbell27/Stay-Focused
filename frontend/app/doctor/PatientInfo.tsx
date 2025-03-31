@@ -17,7 +17,7 @@ const PatientInfo = () => {
     lastname = "",
     login = "",
     email = "",
-    patient_id = "",
+    id = "",
   } = params;
 
   const handlePatientStatistics = () => {
@@ -27,10 +27,11 @@ const PatientInfo = () => {
   const handlePatientAssignments = () => {
     router.push("/doctor/TaskSettings");
   };
+  const formattedFirstName = `${surname} ${firstname[0]}. ${lastname[0]}.`;
 
   return (
     <View style={styles.container}>
-      <Header title={firstname} createBackButton={true} />
+      <Header title={formattedFirstName} createBackButton={true} />
 
       <View style={styles.content}>
         <View style={styles.infoContainer}>
