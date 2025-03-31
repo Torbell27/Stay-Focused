@@ -47,7 +47,7 @@ const DoctorMain: React.FC = () => {
         if (userId) {
           setDoctorId(userId); 
           api
-            .doctorName(userId)
+            .doctorName()
             .then((response) => {
               const formattedFirstName = `${response.surname} ${response.firstname[0]}. ${response.lastname[0]}.`;
               setHeaderUserName(formattedFirstName);
