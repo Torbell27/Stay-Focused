@@ -16,7 +16,7 @@ const authenticate = (req, res, next) => {
                         if (refreshError) {
                             req.userId = null;
                             req.userRole = null;
-                            return res.status(401).json({ message: 'Both access and refresh tokens are invalid.' });
+                            return next();
                         }
                         const userId = decodedRefresh.userId;
                         const userRole = decodedRefresh.userRole;
