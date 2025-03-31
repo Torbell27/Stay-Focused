@@ -11,11 +11,13 @@ const api = axios.create({
 
 async function refreshToken() {
   const refreshToken = await getTokenFromSecureStore("refreshToken");
-  const response = await api.post("/refresh", null, {
-    headers: { refreshToken },
-  });
-  await storeTokenInSecureStore("accessToken", response.data.accessToken);
-  return response.data.accessToken;
+  if (refreshToken) {
+    const response = await api.post("/refresh", null, {
+      headers: { refreshToken },
+    });
+    await storeTokenInSecureStore("accessToken", response.data.accessToken);
+    return response.data.accessToken;
+  }
 }
 
 api.interceptors.request.use(async (config) => {
@@ -30,8 +32,10 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       try {
         const newAccessToken = await refreshToken();
-        error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
-        return api.request(error.config);
+        if (newAccessToken) {
+          error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
+          return api.request(error.config);
+        }
       } catch (err) {
         console.log("Ошибка обновления токена:", err);
       }
