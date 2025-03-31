@@ -19,17 +19,17 @@ export default function ButtonPage() {
   const handleClick = () => {
     const now = Date.now();
     setStatus("начато");
-    if (lastPress && now - lastPress > 60000) setSeries(s => 2);
+    if (lastPress && now - lastPress > 60000) setSeries((s) => 2);
     setLastPress(now);
   };
 
   useEffect(() => {
     if (!lastPress) return;
-    
+
     const timer = setInterval(() => {
       if (Date.now() - lastPress > 60000) {
         setStatus(series >= 2 ? "закончено" : "не начато");
-        setSeries(s => 2);
+        setSeries((s) => 2);
         setLastPress(null);
       }
     }, 1000);
@@ -53,38 +53,39 @@ export default function ButtonPage() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.backgroundScreen },
-  blocksContainer: { flexDirection: "row", justifyContent: "space-between", padding: 16 },
+  blocksContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 16,
+  },
   block: {
-    backgroundColor: "#FFFFFF", 
-    borderColor: Colors.secondary, 
-    borderWidth: 1, 
+    backgroundColor: "#FFFFFF",
+    borderColor: Colors.secondary,
+    borderWidth: 1,
     borderRadius: 16,
-    padding: 16, 
-    width: "48%", 
-    alignItems: "center", 
+    padding: 16,
+    width: "48%",
+    alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
+    boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.25)",
     elevation: 5,
   },
-  upperText: { 
-    fontSize: 18, 
-    fontFamily: "Montserrat-Bold", 
+  upperText: {
+    fontSize: 18,
+    fontFamily: "Montserrat-Bold",
     textAlign: "center",
-    color: Colors.headerText
+    color: Colors.headerText,
   },
-  lowerText: { 
-    fontSize: 22, 
-    fontFamily: "Montserrat-ExtraBold", 
-    textAlign: "center", 
+  lowerText: {
+    fontSize: 22,
+    fontFamily: "Montserrat-ExtraBold",
+    textAlign: "center",
     marginTop: 4,
-    color: Colors.main
+    color: Colors.main,
   },
-  button: { 
-    position: "absolute", 
-    bottom: 40, 
-    alignSelf: "center" 
-  }
-})
+  button: {
+    position: "absolute",
+    bottom: 40,
+    alignSelf: "center",
+  },
+});
