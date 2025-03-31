@@ -1,10 +1,11 @@
 import pool from "../config/db.js";
 
 export const get = async (req, res) => {
-    const { userId } = req.params;
+    const doctorId = req.userId;
+    if (!doctorId) return res.status(403).json({ message: 'Authorization is requiered' });
 
     try {
-        await pool.query(`SET app.user_uuid = '${userId}'`); 
+        await pool.query(`SET app.user_uuid = '${doctorId}'`); 
         const request = await pool.query('SELECT firstname, surname, lastname FROM users_pub');
 
     if (request.rows.length > 0)
@@ -18,18 +19,19 @@ export const get = async (req, res) => {
 };
 
 export const getPatients = async (req, res) => {
-    const { doctorId } = req.params;
+    const doctorId = req.userId;
+    if (!doctorId) return res.status(403).json({ message: 'Authorization is requiered' });
 
     try {
         await pool.query(`SET app.user_uuid = '${doctorId}'`);
         const request = await pool.query(`SELECT * FROM patients_pub`);
 
         if (request.rows.length > 0) {
-            console.log(request.rows);
             return res.status(200).json(request.rows);
         }
-        else
+        else {
             return res.status(404).json({ message: 'No patients found for this doctor' });
+        }
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: 'Server error' });
@@ -37,7 +39,12 @@ export const getPatients = async (req, res) => {
 };
 
 export const signUpPatient = async (req, res) => {
-    const { doctorId, username, password, email, firstName, secondName, patronymic } = req.body; 
+    const { username, password, email, firstName, secondName, patronymic } = req.body;
+
+    const doctorId = req.userId;
+    const doctorRole = req.userRole;
+    if (!doctorId) return res.status(403).json({ message: 'Authorization is requiered' });
+    if (doctorRole != '0') return res.status(403).json({ message: 'Permission denied' });
 
     try {
         const request = await pool.query(

@@ -10,7 +10,7 @@ import {
 import { Colors } from "@/constants/Colors";
 import api from "@/scripts/api";
 import { useRouter } from "expo-router";
-import LoadingModal from "../LoadingModal";
+import LoadingModal from "@/components/LoadingModal";
 
 interface Patient {
   patient_id: string;
@@ -35,9 +35,9 @@ const PatientList: React.FC<PatientListProps> = ({ doctorId }) => {
     console.log("Doctor ID:", doctorId);
     const fetchPatients = async () => {
       try {
-        const data = await api.getPatients(doctorId);
-        console.log(data);
-
+        const data = await api.getPatients();  
+        console.log(data); 
+  
         if (data && data.length > 0) {
           setPatients(data);
         } else {
