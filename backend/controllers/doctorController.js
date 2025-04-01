@@ -53,7 +53,7 @@ export const registerPatient = async (req, res) => {
     const result = request.rows[0].user_register;
     if (result === "Error: User with this login or email already exists")
       return res
-        .status(401)
+        .status(400)
         .json({ status: "User with this login or email already exists" });
 
     console.log(request);

@@ -5,7 +5,7 @@ const { verify, sign } = pkg;
 
 function generateTokens(user) {
   const accessToken = sign(user, process.env.SESSION_SECRET_KEY, {
-    expiresIn: "5s",
+    expiresIn: "30m",
   });
   const refreshToken = sign(user, process.env.SESSION_SECRET_KEY, {
     expiresIn: "7d",
@@ -23,7 +23,7 @@ const login = async (req, res) => {
     ]);
     const userId = request.rows[0].user_auth_request;
     if (userId === "Error: Invalid login or password")
-      return res.status(401).json({ status: "Wrong mail or password" });
+      return res.status(400).json({ status: "Wrong mail or password" });
 
     await pool.query(`SET app.user_uuid = '${userId}'`);
     const request2 = await pool.query("SELECT role FROM users_pub");
@@ -38,11 +38,11 @@ const login = async (req, res) => {
 };
 
 const refresh = async (req, res) => {
-  const refreshToken = req.headers["refresh-token"];
-  if (!refreshToken) return res.sendStatus(401);
+  const { refreshToken } = req.body;
+  if (!refreshToken) return res.sendStatus(403);
 
   verify(refreshToken, process.env.SESSION_SECRET_KEY, (err, user) => {
-    if (err) return res.sendStatus(401);
+    if (err) return res.sendStatus(403);
     const tokens = generateTokens({ id: user.id, role: user.role });
     res.status(200).json(tokens);
   });
