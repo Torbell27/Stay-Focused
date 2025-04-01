@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Keyboard,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, ScrollView, Keyboard } from "react-native";
 import Header from "@/components/Header";
 import RegistrationForm from "@/components/DoctorMain/RegistrationForm";
 import PatientList from "@/components/DoctorMain/PatientList";
@@ -16,7 +10,6 @@ import { Colors } from "@/constants/Colors";
 import { useRouter } from "expo-router";
 import { validateForm } from "@/components/ValidateInputs";
 import api from "@/scripts/api";
-import { storeTokens, getIdFromToken } from "@/scripts/jwt";
 import { checkCode } from "@/components/CheckErrorCode";
 import ModalWindow from "@/components/ModalWindow";
 import LoadingModal from "@/components/LoadingModal";
@@ -53,25 +46,17 @@ const DoctorMain: React.FC = () => {
   });
 
   useEffect(() => {
-    getIdFromToken()
-      .then((userId) => {
-        if (userId) {
-          setDoctorId(userId);
-          api
-            .doctorName()
-            .then((response) => {
-              const formattedFirstName = `${response.surname} ${response.firstname[0]}. ${response.lastname[0]}.`;
-              setHeaderUserName(formattedFirstName);
-            })
-            .catch((error) => {
-              const err = checkCode(error.message);
-              setError(err);
-            });
-        } else {
-          console.log("Failed to get user Role.");
+    api
+      .doctorData()
+      .then((user) => {
+        if (user) {
+          setDoctorId(user.id);
+          const formattedFirstName = `${user.surname} ${user.firstname[0]}. ${user.lastname[0]}.`;
+          setHeaderUserName(formattedFirstName);
         }
       })
       .catch((error) => {
+        setError(checkCode(error.message));
         console.error("Error getting user role:", error);
       });
   }, []);

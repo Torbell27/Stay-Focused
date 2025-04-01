@@ -1,27 +1,55 @@
 import pool from "../config/db.js";
-import pkg from 'jsonwebtoken';
+import pkg from "jsonwebtoken";
 
-const { sign } = pkg;
+const { verify, sign } = pkg;
 
-export const sign_in = async (req, res) => {
-    const { username, password } = req.body;
+function generateTokens(user) {
+  const accessToken = sign(user, process.env.SESSION_SECRET_KEY, {
+    expiresIn: "30m",
+  });
+  const refreshToken = sign(user, process.env.SESSION_SECRET_KEY, {
+    expiresIn: "7d",
+  });
+  return { accessToken, refreshToken };
+}
 
-    try {
-        const request = await pool.query('SELECT user_auth_request($1, $2);', [username, password]);
-        const userId = request.rows[0].user_auth_request;
-        if (userId == "Error: Invalid login or password") return res.status(401).json({ status: 'Wrong mail or password' });
+const login = async (req, res) => {
+  const { username, password } = req.body;
 
-        await pool.query(`SET app.user_uuid = '${userId}'`); 
-        const request2 = await pool.query('SELECT role FROM users_pub');
-        const userRole = request2.rows[0].role;
+  try {
+    const request = await pool.query("SELECT user_auth_request($1, $2);", [
+      username,
+      password,
+    ]);
+    const userId = request.rows[0].user_auth_request;
+    if (userId === "Error: Invalid login or password")
+      return res.status(400).json({ status: "Wrong mail or password" });
 
-        const refreshToken = sign({ userId: userId, userRole: userRole }, process.env.SESSION_SECRET_KEY, { expiresIn: '15d' });
-        const accessToken = sign({ userId: userId, userRole: userRole }, process.env.SESSION_SECRET_KEY, { expiresIn: '10s' });
+    await pool.query(`SET app.user_uuid = '${userId}'`);
+    const request2 = await pool.query("SELECT role FROM users_pub");
+    const userRole = request2.rows[0].role;
 
-        console.log(`user: ${userId} authorized.`);
-        return res.status(200).json({ accessToken, refreshToken });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: 'Server error' });
-    }
+    const tokens = generateTokens({ id: userId, role: userRole });
+    return res.status(200).json(tokens);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ detail: "Server error" });
+  }
 };
+
+const refresh = async (req, res) => {
+  const { refreshToken } = req.body;
+  if (!refreshToken) return res.sendStatus(403);
+
+  verify(refreshToken, process.env.SESSION_SECRET_KEY, (err, user) => {
+    if (err) return res.sendStatus(403);
+    const tokens = generateTokens({ id: user.id, role: user.role });
+    res.status(200).json(tokens);
+  });
+};
+
+const role = async (req, res) => {
+  return res.status(200).json({ role: req.userRole });
+};
+
+export { login, refresh, role };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Header from "@/components/Header";
 import {
   View,
@@ -18,11 +18,14 @@ import {
 import FooterButton from "@/components/FooterButton";
 import Footer from "@/components/Footer";
 import TextField from "@/components/TextInputCustom";
-import { filterUsernameText, filterPasswordText, validateForm } from "@/components/ValidateInputs";
+import {
+  filterUsernameText,
+  filterPasswordText,
+  validateForm,
+} from "@/components/ValidateInputs";
 import { checkCode } from "@/components/CheckErrorCode";
 import api from "@/scripts/api";
 import { useRouter } from "expo-router";
-import { storeTokens, getRoleFromToken } from '@/scripts/jwt';
 
 type AuthorizationData = {
   username: string;
@@ -37,7 +40,8 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({
   errors = {},
 }) => {
   const router = useRouter();
-  const { passwordVisibility, rightIcon, handlePasswordVisibility } = useTogglePasswordVisibility();
+  const { passwordVisibility, rightIcon, handlePasswordVisibility } =
+    useTogglePasswordVisibility();
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
   const [error, setError] = useState<string>();
   const [authorizationData, setAuthorizationData] = useState<AuthorizationData>(
@@ -48,15 +52,15 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({
   );
 
   const validationMap = {
-      username: filterUsernameText,
-      password: filterPasswordText,
-    };
+    username: filterUsernameText,
+    password: filterPasswordText,
+  };
 
   const handleChange = (field: keyof AuthorizationData) => (text: string) => {
-      const validate = validationMap[field];
-      if (validate(text)) {
-        setAuthorizationData((prev)  => ({ ...prev, [field]: text }));
-      }
+    const validate = validationMap[field];
+    if (validate(text)) {
+      setAuthorizationData((prev) => ({ ...prev, [field]: text }));
+    }
   };
 
   const handleAuthorize = async () => {
@@ -72,21 +76,21 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({
     if (Object.keys(filteredErrors).length === 0) {
       api
         .auth(authorizationData)
-        .then((response) => {
-          const { accessToken, refreshToken } = response;
-          storeTokens(accessToken, refreshToken);
-          getRoleFromToken()
-            .then((userRole) => {
-              if (userRole != undefined || userRole != null) userRole == 0 ? router.push("/doctor/DoctorMain") : router.push("/patient/TaskInfoScreen")
-              else console.log('Failed to get user Role.');
+        .then(() => {
+          api
+            .getUserRole()
+            .then((response) => {
+              if (response)
+                response.role === 0
+                  ? router.push("/doctor/DoctorMain")
+                  : router.push("/patient/TaskInfoScreen");
             })
             .catch((error) => {
-              console.error('Error getting user role:', error);
+              console.error("Error getting user role:", error);
             });
         })
         .catch((error) => {
-          const err = checkCode(error.message);
-          setError(err);
+          setError(checkCode(error.message));
         });
     } else {
       console.log("Validation errors:", filteredErrors);

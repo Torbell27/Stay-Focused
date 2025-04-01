@@ -1,89 +1,76 @@
-import axios, { AxiosError } from "axios";
-import { getTokenFromSecureStore, storeTokens } from '@/scripts/jwt';
+import axios from "axios";
+import {
+  storeTokenInSecureStore,
+  getTokenFromSecureStore,
+} from "@/scripts/jwt";
 
 const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
+  headers: { "Content-Type": "application/json" },
 });
 
-api.interceptors.request.use(
-  async (config) => {
-    const accessToken = await getTokenFromSecureStore("accessToken");
-    const refreshToken = await getTokenFromSecureStore("refreshToken");
+async function refreshToken() {
+  const refreshToken = await getTokenFromSecureStore("refreshToken");
+  if (refreshToken) {
+    const response = await api.post("/auth/refresh", { refreshToken });
+    await storeTokenInSecureStore("accessToken", response.data.accessToken);
+    return response.data.accessToken;
+  }
+}
 
-    if (accessToken) config.headers["accessToken"] = accessToken;
-    if (refreshToken) config.headers["refreshToken"] = refreshToken;
-
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+api.interceptors.request.use(async (config) => {
+  const token = await getTokenFromSecureStore("accessToken");
+  if (token) config.headers["Authorization"] = `Bearer ${token}`;
+  return config;
+});
 
 api.interceptors.response.use(
-  (response) => {
-    const newAccessToken = response.headers['newaccesstoken'];
-    // console.log(response);
-
-    if (newAccessToken && newAccessToken != 'null')
-      storeTokens(newAccessToken, null);
-
-    return response;
-  },
+  (response) => response,
   async (error) => {
-      // console.log(error.response);
-
-      const newAccessToken = error.response?.headers['newaccesstoken'];
-      if (newAccessToken && newAccessToken != 'null')
-        storeTokens(newAccessToken, null);
-
-    return;
+    if (error.response?.status === 401) {
+      try {
+        const newAccessToken = await refreshToken();
+        if (newAccessToken) {
+          error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
+          return api.request(error.config);
+        }
+      } catch (err) {
+        console.log("Ошибка обновления токена:", err);
+      }
+    } else {
+      if (axios.isAxiosError(error))
+        throw new Error(error.response?.status || null);
+      throw new Error("Неизвестная ошибка");
+    }
+    return Promise.reject(error);
   }
 );
 
 export default {
   auth: async (authData) => {
-    try {
-      const response = await api.post(`/auth/sign_in`, authData, {
-        headers: { "Content-Type": "application/json" },
-      });
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error))
-        throw new Error(error.response?.status || null);
-      throw new Error("Неизвестная ошибка");
-    }
+    const response = await api.post("/auth/login", authData);
+    await storeTokenInSecureStore("accessToken", response.data.accessToken);
+    await storeTokenInSecureStore("refreshToken", response.data.refreshToken);
+    return response.data;
   },
-  doctorName: async () => {
-    try {
-      const response = await api.get(`/doctor/get/`, {
-        headers: { "Content-Type": "application/json" },
-      });
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error))
-        throw new Error(error.response?.status || null);
-      throw new Error("Неизвестная ошибка");
-    }
+
+  getUserRole: async () => {
+    const response = await api.get("/auth/role");
+    return response.data;
   },
+
+  doctorData: async () => {
+    const response = await api.get("/doctor/get");
+    return response.data;
+  },
+
   getPatients: async () => {
-    try {
-      const response = await api.get(`/doctor/patients`);
-      return response.data; 
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.status || 'Неизвестная ошибка');
-      }
-      throw new Error('Неизвестная ошибка');
-    }
+    const response = await api.get("/doctor/patients");
+    return response.data;
   },
+
   registerPatient: async (registrationData) => {
-    try {
-      const response = await api.post('/doctor/sign_up', registrationData);
-      return response.data;  
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.status || 'Неизвестная ошибка');
-      }
-      throw new Error('Неизвестная ошибка');
-    }
+    const response = await api.post("/doctor/register", registrationData);
+    return response.data;
   },
 };

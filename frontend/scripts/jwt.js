@@ -1,58 +1,21 @@
-import { jwtDecode } from 'jwt-decode';
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from "expo-secure-store";
 
-export const storeTokens = async (accessToken, refreshToken) => {
+const storeTokenInSecureStore = async (name, token) => {
   try {
-    if (accessToken)
-      await SecureStore.setItemAsync('accessToken', accessToken);
-    if (refreshToken)
-      await SecureStore.setItemAsync('refreshToken', refreshToken);
-    console.log('Токены успешно сохранены');
+    await SecureStore.setItemAsync(name, token);
   } catch (error) {
-    console.log('Ошибка сохранения токенов:', error);
+    console.log("Ошибка сохранения токенов в SecureStore:", error);
   }
-  // await SecureStore.deleteItemAsync('accessToken');
-  // await SecureStore.deleteItemAsync('refreshToken');
 };
 
-export const getTokenFromSecureStore = async (key) => {
-    try {
-      const token = await SecureStore.getItemAsync(key);
-      if (token) {
-        return token;
-      }
-      console.log(`Токен с ключом ${key} не найден.`);
-      return null;
-    } catch (error) {
-      console.log('Ошибка при получении токена из SecureStore:', error);
-      return null;
-    }
-  };
-
-export const getIdFromToken = async () => {
-    const token = await getTokenFromSecureStore('accessToken');
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        return decoded.userId;
-      } catch (error) {
-        console.error('Ошибка декодирования токена:', error, token);
-        return null;
-      }
-    }
-    return null;
-  };
-  
-export const getRoleFromToken = async () => {
-  const token = await getTokenFromSecureStore('accessToken');
-  if (token) {
-    try {
-      const decoded = jwtDecode(token);
-      return decoded.userRole;
-    } catch (error) {
-      console.error('Ошибка декодирования токена:', error);
-      return null;
-    }
+const getTokenFromSecureStore = async (key) => {
+  try {
+    const token = await SecureStore.getItemAsync(key);
+    if (token) return token;
+    console.log(`Токен с ключом ${key} не найден.`);
+  } catch (error) {
+    console.log("Ошибка при получении токена из SecureStore:", error);
   }
-  return null;
 };
+
+export { storeTokenInSecureStore, getTokenFromSecureStore };
