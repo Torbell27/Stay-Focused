@@ -84,7 +84,9 @@ const DoctorMain: React.FC = () => {
   const handleFormChange = (data: RegistrationData) => {
     setRegistrationData(data);
   };
-
+  const onClose = () => {
+    setIsLoading(false);
+  };
   const handleRegister = () => {
     const errors = validateForm(registrationData, true);
     const filteredErrors = Object.fromEntries(
@@ -136,7 +138,7 @@ const DoctorMain: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <LoadingModal visible={isLoading} />
+      <LoadingModal visible={isLoading} onClose={onClose} />
       {!isLoading &&
         ["logout", "register", "confirmed", "error"].map((type) => (
           <ModalWindow
