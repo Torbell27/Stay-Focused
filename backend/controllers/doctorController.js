@@ -37,12 +37,12 @@ export const getPatients = async (req, res) => {
     return res.status(500).json({ detail: "Server error" });
   }
 };
-export const getStatistics = async (req, res) => {
+/* export const getStatistics = async (req, res) => {
   const doctorId = req.userId;
 
   try {
     await pool.query(`SET app.user_uuid = '${doctorId}'`);
-    const request = await pool.query(`SELECT * FROM userstatistics`);
+    const request = await pool.query(`SELECT * FROM userstatistic`);
 
     if (request.rows.length > 0) {
       return res.status(200).json(request.rows);
@@ -53,7 +53,7 @@ export const getStatistics = async (req, res) => {
     console.error(err);
     return res.status(500).json({ detail: "Server error" });
   }
-};
+}; */
 
 export const registerPatient = async (req, res) => {
   const { username, password, email, firstName, secondName, patronymic } =

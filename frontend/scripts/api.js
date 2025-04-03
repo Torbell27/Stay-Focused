@@ -78,7 +78,7 @@ export default {
     return response.data;
   },
   getPatientActivity: async (userId) => {
-    throw new Error("404");
+    // throw new Error("404");
     const response = await api.get(`patient/activity/get/${userId}`);
     return response.data;
   },
