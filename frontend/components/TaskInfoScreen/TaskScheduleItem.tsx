@@ -17,32 +17,30 @@ interface StatItem {
 }
 
 interface TaskScheduleItemProps {
-  id?: string;
-  isExpanded?: boolean;
-  onToggle?: () => void;
+  id: string;
+  time: string;
+  level?: number;
+  tap_count?: number | number[];
+  isExpanded: boolean;
+  onToggle: () => void;
 
   date?: string;
   time_stat?: {
     [key: string]: StatItem | undefined;
   };
   formatTime?: (timestamp: number) => string;
-
-  task?: {
-    id: string;
-    time: string;
-    series1: string;
-    series2: string;
-  };
 }
 
 const TaskScheduleItem: React.FC<TaskScheduleItemProps> = ({
   id,
-  date,
-  time_stat,
+  time,
+  level,
+  tap_count,
   isExpanded = false,
   onToggle,
+  date,
+  time_stat,
   formatTime,
-  task,
 }) => {
   const [heightAnim] = useState(new Animated.Value(0));
   const [rotateAnim] = useState(new Animated.Value(0));
@@ -66,25 +64,71 @@ const TaskScheduleItem: React.FC<TaskScheduleItemProps> = ({
     }).start();
   }, [isExpanded]);
 
-  const handlePress = () => {
-    if (onToggle) {
-      onToggle();
+  const isStatisticsMode = !!date && !!time_stat && !!formatTime;
+
+  const renderContent = () => {
+    if (isStatisticsMode && time_stat && formatTime) {
+      return Object.entries(time_stat)
+        .filter(([_, stat]) => stat !== undefined)
+        .map(([timeKey, stat]) => (
+          <View key={`${id}-${timeKey}`} style={styles.timeItem}>
+            <View style={styles.timeHeader}>
+              <Text style={styles.timeText}>
+                {formatTime(stat!.timestamp_start)}
+              </Text>
+              <AntDesign
+                name={stat!.success ? "checkcircleo" : "closecircleo"}
+                size={20}
+                color={stat!.success ? "#1BCD1B" : "#F47272"}
+                style={styles.icon}
+              />
+              <AntDesign
+                name="clockcircleo"
+                size={20}
+                color={stat!.in_time ? "#1BCD1B" : "#F47272"}
+              />
+            </View>
+            <Text style={styles.seriesText}>
+              1-ая серия: {stat!.tap_count[0]} нажатий
+            </Text>
+            <Text style={styles.seriesText}>
+              2-ая серия: {stat!.tap_count[1]} нажатий
+            </Text>
+          </View>
+        ));
     }
+
+    const tapCounts = Array.isArray(tap_count) ? tap_count : [tap_count];
+
+    return (
+      <>
+        <Text style={styles.seriesText}>
+          1-ая серия: {tapCounts[0]} нажатий
+        </Text>
+        {level === 2 && tapCounts.length > 1 && (
+          <Text style={styles.seriesText}>
+            2-ая серия: {tapCounts[1]} нажатий
+          </Text>
+        )}
+      </>
+    );
   };
 
-  const isStatisticsMode = !!date && !!time_stat && !!formatTime;
-  const isTaskInfoMode = !!task;
+  const getContentHeight = () => {
+    if (isStatisticsMode && time_stat) {
+      return Object.keys(time_stat).length * 100;
+    }
+    return level === 1 ? 40 : 80;
+  };
 
   return (
     <View style={[styles.container, isExpanded && styles.expandedContainer]}>
       <TouchableOpacity
         activeOpacity={0.8}
-        onPress={handlePress}
+        onPress={onToggle}
         style={styles.header}
       >
-        <Text style={styles.headerText}>
-          {isStatisticsMode ? date : task?.time}
-        </Text>
+        <Text style={styles.headerText}>{isStatisticsMode ? date : time}</Text>
         <Animated.View
           style={[
             styles.icon,
@@ -110,52 +154,12 @@ const TaskScheduleItem: React.FC<TaskScheduleItemProps> = ({
           {
             height: heightAnim.interpolate({
               inputRange: [0, 1],
-              outputRange: [
-                0,
-                isStatisticsMode
-                  ? Object.keys(time_stat || {}).length * 100
-                  : 80,
-              ],
+              outputRange: [0, getContentHeight()],
             }),
           },
         ]}
       >
-        {isExpanded &&
-          (isStatisticsMode ? (
-            Object.entries(time_stat || {})
-              .filter(([_, stat]) => stat !== undefined)
-              .map(([time, stat]) => (
-                <View key={time} style={styles.timeItem}>
-                  <View style={styles.timeHeader}>
-                    <Text style={styles.timeText}>
-                      {formatTime!(stat!.timestamp_start)}
-                    </Text>
-                    <AntDesign
-                      name={stat!.success ? "checkcircleo" : "closecircleo"}
-                      size={20}
-                      color={stat!.success ? "#1BCD1B" : "#F47272"}
-                      style={styles.icon}
-                    />
-                    <AntDesign
-                      name="clockcircleo"
-                      size={20}
-                      color={stat!.in_time ? "#1BCD1B" : "#F47272"}
-                    />
-                  </View>
-                  <Text style={styles.seriesText}>
-                    1-ая серия: {stat!.tap_count[0]} нажатий
-                  </Text>
-                  <Text style={styles.seriesText}>
-                    2-ая серия: {stat!.tap_count[1]} нажатий
-                  </Text>
-                </View>
-              ))
-          ) : isTaskInfoMode ? (
-            <>
-              <Text style={styles.seriesText}>{task?.series1}</Text>
-              <Text style={styles.seriesText}>{task?.series2}</Text>
-            </>
-          ) : null)}
+        {isExpanded && renderContent()}
       </Animated.View>
     </View>
   );
@@ -208,6 +212,7 @@ const styles = StyleSheet.create({
     fontFamily: "Montserrat-Regular",
     color: Colors.headerText,
     marginBottom: 4,
+    paddingHorizontal: 10,
   },
   contentContainer: {
     overflow: "hidden",

@@ -7,109 +7,99 @@ import Header from "@/components/Header";
 import ModalWindow from "@/components/ModalWindow";
 import { Colors } from "@/constants/Colors";
 import { useRouter } from "expo-router";
-import axios from "axios";
+import api from "@/scripts/api";
+import LoadingModal from "@/components/LoadingModal";
+
+type ActivityData = {
+  level: number;
+  tap_count: number | number[];
+  selected_time: string[];
+};
 
 const TaskInfoScreen: React.FC = () => {
-  const [difficulty, setDifficulty] = useState<string>("notsimple");
-  const [headerUserName, setHeaderUserName] = useState<string>("Иванова И. И.");
-  const [taskData, setTaskData] = useState<any[]>([]);
-  const [taskInstructionText, setTaskInstructionText] = useState<string>("");
+  const [taskData, setTaskData] = useState<
+    {
+      id: string;
+      time: string;
+      level: number;
+      tap_count: number | number[];
+    }[]
+  >([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [headerUserName, setHeaderUserName] = useState<string>("");
+  const [activityData, setActivityData] = useState<ActivityData | null>(null);
+  const [loadingMessage, setLoadingMessage] =
+    useState<string>("Загрузка данных...");
+  const [taskInstructionText, setTaskInstructionText] = useState<string>(
+    "Не удалось загрузить ваши задания"
+  );
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {}
   );
 
   useEffect(() => {
-    /*     axios.get("https://api.example.com/tasks")
-      .then(response => setTaskData(response.data))
-      .catch((error) => { */
-    const defaultTasks = [
-      {
-        id: "1",
-        time: "9:00",
-        series1: "1-ая серия: 10 нажатий",
-        series2: "2-ая серия: 12 нажатий",
-      },
-      {
-        id: "2",
-        time: "11:00",
-        series1: "1-ая серия: 10 нажатий",
-        series2: "2-ая серия: 12 нажатий",
-      },
-      {
-        id: "3",
-        time: "16:00",
-        series1: "1-ая серия: 10 нажатий",
-        series2: "2-ая серия: 12 нажатий",
-      },
-      {
-        id: "4",
-        time: "20:00",
-        series1: "1-ая серия: 10 нажатий",
-        series2: "2-ая серия: 12 нажатий",
-      },
-      {
-        id: "5",
-        time: "9:00",
-        series1: "1-ая серия: 10 нажатий",
-        series2: "2-ая серия: 12 нажатий",
-      },
-      {
-        id: "6",
-        time: "11:00",
-        series1: "1-ая серия: 10 нажатий",
-        series2: "2-ая серия: 12 нажатий",
-      },
-      {
-        id: "7",
-        time: "16:00",
-        series1: "1-ая серия: 10 нажатий",
-        series2: "2-ая серия: 12 нажатий",
-      },
-      {
-        id: "8",
-        time: "20:00",
-        series1: "1-ая серия: 10 нажатий",
-        series2: "2-ая серия: 12 нажатий",
-      },
-      {
-        id: "9",
-        time: "9:00",
-        series1: "1-ая серия: 10 нажатий",
-        series2: "2-ая серия: 12 нажатий",
-      },
-      {
-        id: "10",
-        time: "11:00",
-        series1: "1-ая серия: 10 нажатий",
-        series2: "2-ая серия: 12 нажатий",
-      },
-      {
-        id: "11",
-        time: "16:00",
-        series1: "1-ая серия: 10 нажатий",
-        series2: "2-ая серия: 12 нажатий",
-      },
-      {
-        id: "12",
-        time: "20:00",
-        series1: "1-ая серия: 10 нажатий",
-        series2: "2-ая серия: 12 нажатий",
-      },
-    ];
-    setTaskData(defaultTasks);
-    if (defaultTasks.length > 0) {
-      setExpandedItems({ [defaultTasks[0].id]: true });
-    }
-    // console.error(error);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setLoadingMessage("Получение данных пользователя...");
+
+        const user = await api.patientData();
+        const formattedFirstName = `${user.surname} ${user.firstname[0]}. ${user.lastname[0]}.`;
+        setHeaderUserName(formattedFirstName);
+        if (!user) throw new Error("Пользователь не найден");
+
+        setLoadingMessage("Загрузка активности...");
+        const activity = await api.getPatientActivity(user.id);
+        // const activity = "";
+
+        if (!activity.activity) {
+          const defaultActivity = {
+            level: 2,
+            tap_count: [10, 18],
+            selected_time: ["10", "12", "18"],
+          };
+          setActivityData(defaultActivity);
+          generateTaskData(defaultActivity);
+          return;
+        }
+
+        setActivityData(activity);
+        generateTaskData(activity);
+      } catch (error) {
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
+  const generateTaskData = (activity: ActivityData) => {
+    const tasks = activity.selected_time.map((time, index) => ({
+      id: `${index + 1}`,
+      time: `${time}:00`,
+      level: activity.level,
+      tap_count: activity.tap_count,
+    }));
+
+    setTaskData(tasks);
+    if (tasks.length > 0) {
+      setExpandedItems({ [tasks[0].id]: true });
+    }
+  };
+
   useEffect(() => {
+    if (!activityData) return;
     const instruction =
-      difficulty === "simple" ? "выполните одну серию" : "выполните две серии";
-    setTaskInstructionText(
-      `Задание: ${instruction} нажатий с перерывом в минуту`
-    );
-  }, [difficulty]);
+      activityData.level === 1
+        ? "выполните одну серию нажатий"
+        : "выполните две серии нажатий с перерывом в минуту";
+
+    const description = `Задание: ${instruction}`;
+
+    setTaskInstructionText(description);
+  }, [activityData]);
+
   const router = useRouter();
   const handleStartTask = () => {
     router.push("/patient/TaskButtonScreen");
@@ -128,6 +118,9 @@ const TaskInfoScreen: React.FC = () => {
       [id]: !prev[id],
     }));
   };
+  const onClose = () => {
+    setLoading(false);
+  };
 
   return (
     <View style={styles.container}>
@@ -136,19 +129,25 @@ const TaskInfoScreen: React.FC = () => {
         createBackButton={false}
         logoutFunc={handleLogout}
       />
+
       <View style={styles.taskInstruction}>
         <Text style={styles.taskInstructionText}>{taskInstructionText}</Text>
       </View>
+
       <ScrollView style={styles.schedule}>
         {taskData.map((task) => (
           <TaskScheduleItem
             key={task.id}
-            task={task}
+            id={task.id}
+            time={task.time}
+            tap_count={task.tap_count}
+            level={task.level}
             isExpanded={!!expandedItems[task.id]}
             onToggle={() => handleToggle(task.id)}
           />
         ))}
       </ScrollView>
+
       <Footer
         components={[
           <FooterButton
@@ -168,11 +167,22 @@ const TaskInfoScreen: React.FC = () => {
         confirmText="Выйти"
         cancelText="Отмена"
       />
+      <LoadingModal
+        visible={loading}
+        message="Загрузка данных..."
+        onClose={onClose}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  errorText: {
+    color: Colors.main,
+    fontSize: 16,
+    textAlign: "center",
+    margin: 20,
+  },
   container: {
     display: "flex",
     backgroundColor: Colors.backgroundScreen,

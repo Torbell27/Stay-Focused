@@ -73,4 +73,13 @@ export default {
     const response = await api.post("/doctor/register", registrationData);
     return response.data;
   },
+  patientData: async () => {
+    const response = await api.get("/patient/get");
+    return response.data;
+  },
+  getPatientActivity: async (userId) => {
+    // throw new Error("404");
+    const response = await api.get(`patient/activity/get/${userId}`);
+    return response.data;
+  },
 };
