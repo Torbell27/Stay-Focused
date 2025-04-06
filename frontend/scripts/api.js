@@ -3,6 +3,7 @@ import {
   storeTokenInSecureStore,
   getTokenFromSecureStore,
 } from "@/scripts/jwt";
+import { sha256 } from "react-native-sha256";
 
 const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -70,7 +71,11 @@ export default {
   },
 
   registerPatient: async (registrationData) => {
-    const response = await api.post("/doctor/register", registrationData);
+    const passwordHash = await sha256(registrationData.password);
+    const response = await api.post("/doctor/register", {
+      ...registrationData,
+      password: passwordHash,
+    });
     return response.data;
   },
   patientData: async () => {
