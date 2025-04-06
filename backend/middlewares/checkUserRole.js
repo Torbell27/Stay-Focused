@@ -2,8 +2,7 @@ import pkg from "jsonwebtoken";
 
 const { verify } = pkg;
 
-function checkUserRole(role) {
-  return function (req, res, next) {
+const checkUserRole = (role) => (req, res, next) => {
     const token = req.headers["authorization"]?.split(" ")[1];
     if (!token) return res.sendStatus(401);
 
@@ -11,7 +10,6 @@ function checkUserRole(role) {
       if (err || parseInt(user.role) !== role) return res.sendStatus(401);
       next();
     });
-  };
 }
 
 export { checkUserRole };
