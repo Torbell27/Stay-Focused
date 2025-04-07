@@ -14,16 +14,16 @@ function generateTokens(user) {
 }
 
 const login = async (req, res) => {
-  const { username, password } = req.body;
-
   try {
+    const { username, password } = req.body;
+
     const request = await pool.query("SELECT user_auth_request($1, $2);", [
       username,
       password,
     ]);
     const userId = request.rows[0].user_auth_request;
     if (userId === "Error: Invalid login or password")
-      return res.status(400).json({ status: "Wrong mail or password" });
+      return res.status(400).json({ status: "Invalid login or password" });
 
     await pool.query(`SET app.user_uuid = '${userId}'`);
     const request2 = await pool.query("SELECT role FROM users_pub");
@@ -38,14 +38,20 @@ const login = async (req, res) => {
 };
 
 const refresh = async (req, res) => {
-  const { refreshToken } = req.body;
-  if (!refreshToken) return res.sendStatus(403);
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken)
+      return res.status(400).json({ detail: "Invalid refresh token" });
 
-  verify(refreshToken, process.env.SESSION_SECRET_KEY, (err, user) => {
-    if (err) return res.sendStatus(403);
-    const tokens = generateTokens({ id: user.id, role: user.role });
-    res.status(200).json(tokens);
-  });
+    verify(refreshToken, process.env.SESSION_SECRET_KEY, (err, user) => {
+      if (err) return res.status(400).json({ detail: "Invalid refresh token" });
+      const tokens = generateTokens({ id: user.id, role: user.role });
+      res.status(200).json(tokens);
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ detail: "Server error" });
+  }
 };
 
 const role = async (req, res) => {

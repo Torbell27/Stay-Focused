@@ -2,7 +2,7 @@ import pkg from "jsonwebtoken";
 
 const { verify } = pkg;
 
-function authenticate(req, res, next) {
+const authenticate = (req, res, next) => {
   const token = req.headers["authorization"]?.split(" ")[1];
   if (!token) return res.sendStatus(401);
 
@@ -12,6 +12,6 @@ function authenticate(req, res, next) {
     req.userRole = user.role;
     next();
   });
-}
+};
 
 export { authenticate };

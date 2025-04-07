@@ -14,8 +14,10 @@ async function refreshToken() {
   const refreshToken = await getTokenFromSecureStore("refreshToken");
   if (refreshToken) {
     const response = await api.post("/auth/refresh", { refreshToken });
-    await storeTokenInSecureStore("accessToken", response.data.accessToken);
-    return response.data.accessToken;
+    if (response.status === 200) {
+      await storeTokenInSecureStore("accessToken", response.data.accessToken);
+      return response.data.accessToken;
+    }
   }
 }
 
@@ -28,7 +30,8 @@ api.interceptors.request.use(async (config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
+    const url = error.response?.config?.url;
+    if (error.response?.status === 401 && url !== "/auth/refresh") {
       try {
         const newAccessToken = await refreshToken();
         if (newAccessToken) {
@@ -39,8 +42,7 @@ api.interceptors.response.use(
         console.log("Ошибка обновления токена:", err);
       }
     } else {
-      if (axios.isAxiosError(error))
-        throw new Error(error.response?.status || null);
+      if (axios.isAxiosError(error)) throw new Error(error.response?.status);
       throw new Error("Неизвестная ошибка");
     }
     return Promise.reject(error);
