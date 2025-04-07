@@ -1,9 +1,9 @@
 import pool from "../config/db.js";
 
 export const get = async (req, res) => {
-  const doctorId = req.userId;
-
   try {
+    const doctorId = req.userId;
+
     await pool.query(`SET app.user_uuid = '${doctorId}'`);
     const request = await pool.query(
       "SELECT firstname, surname, lastname FROM users_pub"
@@ -19,9 +19,9 @@ export const get = async (req, res) => {
 };
 
 export const getPatients = async (req, res) => {
-  const doctorId = req.userId;
-
   try {
+    const doctorId = req.userId;
+
     await pool.query(`SET app.user_uuid = '${doctorId}'`);
     const request = await pool.query(`SELECT * FROM patients_pub`);
 
@@ -37,6 +37,7 @@ export const getPatients = async (req, res) => {
     return res.status(500).json({ detail: "Server error" });
   }
 };
+
 /* export const getStatistics = async (req, res) => {
   const doctorId = req.userId;
 
@@ -56,12 +57,12 @@ export const getPatients = async (req, res) => {
 }; */
 
 export const registerPatient = async (req, res) => {
-  const { username, password, email, firstName, secondName, patronymic } =
-    req.body;
-
-  const doctorId = req.userId;
-
   try {
+    const { username, password, email, firstName, secondName, patronymic } =
+      req.body;
+
+    const doctorId = req.userId;
+
     const request = await pool.query(
       "SELECT user_register($1, $2, $3, $4, $5, $6, $7);",
       [doctorId, username, password, email, firstName, secondName, patronymic]
@@ -71,13 +72,13 @@ export const registerPatient = async (req, res) => {
     if (result === "Error: User with this login or email already exists")
       return res
         .status(400)
-        .json({ status: "User with this login or email already exists" });
+        .json({ detail: "User with this login or email already exists" });
 
     const userId = request.rows[0].user_register;
 
     return res.status(200).json({
       status: "success",
-      detail: `Patient with ID ${userId} registered`,
+      message: `Patient with ID ${userId} registered`,
     });
   } catch (err) {
     console.error(err);
