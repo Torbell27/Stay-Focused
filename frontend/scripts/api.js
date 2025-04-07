@@ -16,6 +16,7 @@ async function refreshToken() {
     const response = await api.post("/auth/refresh", { refreshToken });
     if (response.status === 200) {
       await storeTokenInSecureStore("accessToken", response.data.accessToken);
+      await storeTokenInSecureStore("refreshToken", response.data.refreshToken);
       return response.data.accessToken;
     }
   }
