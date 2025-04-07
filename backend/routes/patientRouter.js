@@ -9,6 +9,5 @@ router.use(authenticate);
 router.use(checkUserRole(1));
 
 router.get("/get", patientController.get);
-router.get("/activity/get/:userId", patientController.getActivity);
 
 export default router;

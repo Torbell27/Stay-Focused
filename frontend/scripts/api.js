@@ -32,14 +32,10 @@ api.interceptors.response.use(
   async (error) => {
     const url = error.response?.config?.url;
     if (error.response?.status === 401 && url !== "/auth/refresh") {
-      try {
-        const newAccessToken = await refreshToken();
-        if (newAccessToken) {
-          error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
-          return api.request(error.config);
-        }
-      } catch (err) {
-        console.log("Ошибка обновления токена:", err);
+      const newAccessToken = await refreshToken();
+      if (newAccessToken) {
+        error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
+        return api.request(error.config);
       }
     } else {
       if (axios.isAxiosError(error)) throw new Error(error.response?.status);

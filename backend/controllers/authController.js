@@ -23,7 +23,7 @@ const login = async (req, res) => {
     ]);
     const userId = request.rows[0].user_auth_request;
     if (userId === "Error: Invalid login or password")
-      return res.status(400).json({ status: "Invalid login or password" });
+      return res.status(400).json({ detail: "Invalid login or password" });
 
     await pool.query(`SET app.user_uuid = '${userId}'`);
     const request2 = await pool.query("SELECT role FROM users_pub");
