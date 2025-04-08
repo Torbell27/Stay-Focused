@@ -12,7 +12,7 @@ import LoadingModal from "@/components/LoadingModal";
 
 type ActivityData = {
   level: number;
-  tap_count: number[];
+  tap_count: number | number[];
   selected_time: string[];
 };
 
@@ -48,7 +48,7 @@ const TaskInfoScreen: React.FC = () => {
           const defaultActivity = {
             level: 2,
             tap_count: [10, 18],
-            selected_time: ["10", "12", "18"],
+            selected_time: ["9", "10", "12", "18"],
           };
           setActivityData(defaultActivity);
           generateTaskData(defaultActivity);
@@ -69,12 +69,13 @@ const TaskInfoScreen: React.FC = () => {
   const generateTaskData = (activity: ActivityData) => {
     const tasks = activity.selected_time.map((time, index) => ({
       id: `${index + 1}`,
-      time: `${time}:00`,
+      time: `${time.padStart(2, "0")}:00`,
       level: activity.level,
-      tap_count:
-        index % 2 === 1
+      tap_count: Array.isArray(activity.tap_count)
+        ? index % 2 === 1
           ? activity.tap_count
-          : [activity.tap_count[1], activity.tap_count[0]],
+          : [activity.tap_count[1], activity.tap_count[0]]
+        : activity.tap_count,
     }));
 
     setTaskData(tasks);
