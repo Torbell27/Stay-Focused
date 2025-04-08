@@ -6,11 +6,11 @@ import {
   TouchableOpacity,
   ToastAndroid,
   Platform,
-  Clipboard,
   Alert,
 } from "react-native";
 import { Colors } from "@/constants/Colors";
 import Feather from "@expo/vector-icons/Feather";
+import Clipboard from "@react-native-clipboard/clipboard";
 
 interface PatientInfoFieldProps {
   label: string;
