@@ -12,7 +12,7 @@ import LoadingModal from "@/components/LoadingModal";
 
 type ActivityData = {
   level: number;
-  tap_count: number | number[];
+  tap_count: number[];
   selected_time: string[];
 };
 
@@ -30,9 +30,7 @@ const TaskInfoScreen: React.FC = () => {
   const [activityData, setActivityData] = useState<ActivityData | null>(null);
   const [loadingMessage, setLoadingMessage] =
     useState<string>("Загрузка данных...");
-  const [taskInstructionText, setTaskInstructionText] = useState<string>(
-    "Не удалось загрузить ваши задания"
-  );
+  const [taskInstructionText, setTaskInstructionText] = useState<string>("");
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {}
   );
@@ -41,18 +39,12 @@ const TaskInfoScreen: React.FC = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        setLoadingMessage("Получение данных пользователя...");
-
         const user = await api.patientData();
         const formattedFirstName = `${user.surname} ${user.firstname[0]}. ${user.lastname[0]}.`;
         setHeaderUserName(formattedFirstName);
         if (!user) throw new Error("Пользователь не найден");
-
         setLoadingMessage("Загрузка активности...");
-        const activity = await api.getPatientActivity(user.id);
-        // const activity = "";
-
-        if (!activity.activity) {
+        if (!user.activity) {
           const defaultActivity = {
             level: 2,
             tap_count: [10, 18],
@@ -63,8 +55,8 @@ const TaskInfoScreen: React.FC = () => {
           return;
         }
 
-        setActivityData(activity);
-        generateTaskData(activity);
+        setActivityData(user.activity);
+        generateTaskData(user.activity);
       } catch (error) {
       } finally {
         setLoading(false);
@@ -79,7 +71,10 @@ const TaskInfoScreen: React.FC = () => {
       id: `${index + 1}`,
       time: `${time}:00`,
       level: activity.level,
-      tap_count: activity.tap_count,
+      tap_count:
+        index % 2 === 1
+          ? activity.tap_count
+          : [activity.tap_count[1], activity.tap_count[0]],
     }));
 
     setTaskData(tasks);
