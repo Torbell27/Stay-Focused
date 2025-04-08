@@ -88,11 +88,8 @@ export const getActivity = async (req, res, next) => {
   try {
     await pool.query(`SET app.user_uuid = '${patientId}'`);
     const request = await pool.query(`SELECT activity FROM users_pub`);
-    if (request.rows.length > 0) {
-      return res.status(200).json(request.rows[0]);
-    } else {
-      return res.status(204).json({ detail: "Activity does not exist" });
-    }
+    if (request.rows.length > 0) return res.status(200).json(request.rows[0]);
+    return res.status(204).json({ detail: "Activity does not exist" });
   } catch (err) {
     next(err);
   }
@@ -109,9 +106,9 @@ export const putActivity = async (req, res, next) => {
       [doctorId, patientId, activity.level, JSON.stringify(activity)]
     );
 
-    const result = request.rows[0];
-    console.log(activity, result);
-    return res.status(200).json({ message: "Activity successfully changed" });
+    if (request.rows.length > 0)
+      return res.status(200).json({ message: "Activity successfully changed" });
+    return res.status(400).json({ detail: "Failed to put activity" });
   } catch (err) {
     next(err);
   }
