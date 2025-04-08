@@ -93,19 +93,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 10,
     minWidth: 100,
+    alignSelf: "center",
     alignItems: "center",
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   confirmButton: {
     backgroundColor: Colors.main,
   },
   cancelButton: {
     backgroundColor: Colors.primary,
-    borderWidth: 1,
-    borderColor: Colors.border,
   },
   infoButton: {
     backgroundColor: Colors.main,
-    alignSelf: "center",
   },
   buttonText: {
     color: Colors.primary,
