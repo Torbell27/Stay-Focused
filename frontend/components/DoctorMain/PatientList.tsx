@@ -19,6 +19,7 @@ interface Patient {
   lastname: string;
   login: string;
   email: string;
+  activity?: string;
 }
 
 interface PatientListProps {
@@ -35,9 +36,9 @@ const PatientList: React.FC<PatientListProps> = ({ doctorId }) => {
     console.log("Doctor ID:", doctorId);
     const fetchPatients = async () => {
       try {
-        const data = await api.getPatients();  
-        console.log(data); 
-  
+        const data = await api.getPatients();
+        console.log(data);
+
         if (data && data.length > 0) {
           setPatients(data);
         } else {
@@ -65,6 +66,7 @@ const PatientList: React.FC<PatientListProps> = ({ doctorId }) => {
         lastname: patient.lastname,
         login: patient.login,
         email: patient.email,
+        activity: patient.activity,
       },
     });
   };
