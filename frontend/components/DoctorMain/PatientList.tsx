@@ -66,7 +66,6 @@ const PatientList: React.FC<PatientListProps> = ({ doctorId }) => {
         lastname: patient.lastname,
         login: patient.login,
         email: patient.email,
-        activity: patient.activity,
       },
     });
   };

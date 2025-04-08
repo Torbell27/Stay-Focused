@@ -11,6 +11,7 @@ router.use(checkUserRole(0));
 router.get("/get", doctorController.get);
 router.get("/patients", doctorController.getPatients);
 router.post("/register", doctorController.registerPatient);
+router.get("/activity/:patientId", doctorController.getActivity);
 router.put("/activity/:patientId", doctorController.putActivity);
 
 export default router;

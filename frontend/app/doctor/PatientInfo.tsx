@@ -16,7 +16,6 @@ const PatientInfo = () => {
     login: string;
     email: string;
     id: string;
-    activity?: string;
   }>();
 
   const {

@@ -82,19 +82,35 @@ export const registerPatient = async (req, res, next) => {
   }
 };
 
+export const getActivity = async (req, res, next) => {
+  const { patientId } = req.params;
+
+  try {
+    await pool.query(`SET app.user_uuid = '${patientId}'`);
+    const request = await pool.query(`SELECT activity FROM users_pub`);
+    if (request.rows.length > 0) {
+      return res.status(200).json(request.rows[0]);
+    } else {
+      return res.status(204).json({ detail: "Activity does not exist" });
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const putActivity = async (req, res, next) => {
   try {
     const doctorId = req.userId;
     const { patientId } = req.params;
-    const activity = req.body;
+    const { activity } = req.body;
 
     const request = await pool.query(
       "SELECT activity_update($1, $2, $3, $4);",
-      [doctorId, patientId, activity.level, activity]
+      [doctorId, patientId, activity.level, JSON.stringify(activity)]
     );
 
     const result = request.rows[0];
-    console.log(result);
+    console.log(activity, result);
     return res.status(200).json({ message: "Activity successfully changed" });
   } catch (err) {
     next(err);
