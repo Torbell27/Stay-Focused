@@ -6,18 +6,32 @@ import CounterSection from "@/components/TaskSettings/CounterSection";
 import FooterButton from "@/components/FooterButton";
 import Footer from "@/components/Footer";
 import { Colors } from "@/constants/Colors";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import Selector from "@/components/Selector";
 
 const TaskSettings = () => {
   const router = useRouter();
+  const {
+    activity,
+    firstname = "",
+    surname = "",
+    lastname = "",
+  } = useLocalSearchParams<{
+    activity: string;
+    firstname: string;
+    surname: string;
+    lastname: string;
+  }>();
+  const formattedFirstName = `${surname} ${firstname[0]}. ${lastname[0]}.`;
 
-  const [difficulty, setDifficulty] = useState<string>("simple");
+  const activityJSON = JSON.parse(activity);
+
+  const [difficulty, setDifficulty] = useState<string>("0");
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
   const [firstSeriesCount, setFirstSeriesCount] = useState<number>(10);
   const [secondSeriesCount, setSecondSeriesCount] = useState<number>(12);
   const [headerUserName, setHeaderUserName] =
-    useState<string>("Смирнова Н. В.");
+    useState<string>(formattedFirstName);
 
   const handleSave = () => {
     console.log({
@@ -38,7 +52,7 @@ const TaskSettings = () => {
           selected={difficulty}
           onSelect={setDifficulty}
           mainLabel="Уровень сложности"
-          keys={{ simple: "Простой", complex: "Сложный" }}
+          keys={{ "0": "Простой", "1": "Сложный" }}
         />
 
         <TimeSelector

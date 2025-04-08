@@ -82,4 +82,21 @@ export const registerPatient = async (req, res, next) => {
   }
 };
 
-export const putActivity = async (req, res, next) => {};
+export const putActivity = async (req, res, next) => {
+  try {
+    const doctorId = req.userId;
+    const { patientId } = req.params;
+    const activity = req.body;
+
+    const request = await pool.query(
+      "SELECT activity_update($1, $2, $3, $4);",
+      [doctorId, patientId, activity.level, activity]
+    );
+
+    const result = request.rows[0];
+    console.log(result);
+    return res.status(200).json({ message: "Activity successfully changed" });
+  } catch (err) {
+    next(err);
+  }
+};
