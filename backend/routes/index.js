@@ -6,10 +6,10 @@ import { handleUnexpectedError } from "../middlewares/handleUnexpectedError.js";
 
 const router = express.Router();
 
-router.use(handleUnexpectedError);
-
 router.use("/auth", authRouter);
 router.use("/doctor", doctorRouter);
 router.use("/patient", patientRouter);
+
+router.use(handleUnexpectedError);
 
 export default router;

@@ -1,10 +1,6 @@
-const handleUnexpectedError = (_, res, next) => {
-  try {
-    next();
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ detail: "Server error" });
-  }
+const handleUnexpectedError = (err, req, res, next) => {
+  console.error(err.stack);
+  return res.status(500).json({ detail: "Server error" });
 };
 
 export { handleUnexpectedError };

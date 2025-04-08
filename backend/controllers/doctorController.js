@@ -1,6 +1,6 @@
 import pool from "../config/db.js";
 
-export const get = async (req, res) => {
+export const get = async (req, res, next) => {
   try {
     const doctorId = req.userId;
 
@@ -13,12 +13,11 @@ export const get = async (req, res) => {
       return res.status(200).json({ id: doctorId, ...request.rows[0] });
     else return res.status(404).json({ detail: "No doctor data" });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ detail: "Server error" });
+    next(err);
   }
 };
 
-export const getPatients = async (req, res) => {
+export const getPatients = async (req, res, next) => {
   try {
     const doctorId = req.userId;
 
@@ -33,12 +32,11 @@ export const getPatients = async (req, res) => {
         .json({ detail: "No patients found for this doctor" });
     }
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ detail: "Server error" });
+    next(err);
   }
 };
 
-/* export const getStatistics = async (req, res) => {
+/* export const getStatistics = async (req, res, next) => {
   const doctorId = req.userId;
 
   try {
@@ -51,12 +49,11 @@ export const getPatients = async (req, res) => {
       return res.status(404).json({ detail: "Statistic does not exist" });
     }
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ detail: "Server error" });
+    next(err);
   }
 }; */
 
-export const registerPatient = async (req, res) => {
+export const registerPatient = async (req, res, next) => {
   try {
     const { username, password, email, firstName, secondName, patronymic } =
       req.body;
@@ -81,7 +78,8 @@ export const registerPatient = async (req, res) => {
       message: `Patient with ID ${userId} registered`,
     });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ detail: "Server error" });
+    next(err);
   }
 };
+
+export const putActivity = async (req, res, next) => {};

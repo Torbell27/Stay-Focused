@@ -1,6 +1,6 @@
 import pool from "../config/db.js";
 
-export const get = async (req, res) => {
+export const get = async (req, res, next) => {
   try {
     const patientId = req.userId;
 
@@ -14,12 +14,11 @@ export const get = async (req, res) => {
 
     return res.status(404).json({ detail: "No patient data" });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ detail: "Server error" });
+    next(err);
   }
 };
 
-/* export const getActivity = async (req, res) => {
+/* export const getActivity = async (req, res, next) => {
   const patientId = req.userId;
 
   try {
@@ -31,7 +30,6 @@ export const get = async (req, res) => {
       return res.status(204).json({ detail: "Activity does not exist" });
     }
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ detail: "Server error" });
+    next(err);
   }
 }; */
