@@ -15,11 +15,13 @@
   },
   "dependencies": {
     "@expo/vector-icons": "14.0.2",
+    "@react-native-community/netinfo": "11.4.1",
     "@react-navigation/bottom-tabs": "7.2.0",
     "@react-navigation/native": "7.0.14",
     "axios": "1.8.3",
     "expo": "52.0.38",
     "expo-blur": "14.0.3",
+    "expo-clipboard": "7.0.1",
     "expo-constants": "17.0.8",
     "expo-env": "1.1.1",
     "expo-font": "13.0.4",
@@ -44,8 +46,7 @@
     "react-native-sha256": "1.4.10",
     "react-native-svg": "15.8.0",
     "react-native-web": "0.19.13",
-    "react-native-webview": "13.12.5",
-    "expo-clipboard": "7.0.1"
+    "react-native-webview": "13.12.5"
   },
   "devDependencies": {
     "@babel/core": "7.25.2",
