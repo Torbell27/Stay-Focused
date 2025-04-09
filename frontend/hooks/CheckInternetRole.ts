@@ -13,23 +13,18 @@ const useCheckInternetRole = () => {
         const state = await NetInfo.fetch();
         const token = await getTokenFromSecureStore("accessToken");
 
-        if (!token && state.isConnected && state.isInternetReachable) {
-          const response = await api.getUserRole();
-          if (response) {
-            const targetRoute = response.role === 0 ? "/doctor/DoctorMain" : "/patient/TaskInfoScreen";
-            router.push(targetRoute);
+        if (state.isConnected && state.isInternetReachable) {
+          if (token) {
+            const response = await api.getUserRole();
+            if (response) {
+              const targetRoute = response.role === 0 ? "/doctor/DoctorMain" : "/patient/TaskInfoScreen";
+              router.push(targetRoute);
+            }
           }
-        } else {
-          const role = await getRoleFromSecureStore();
-          if (role) {
-            const targetRoute = role === '0' ? "/doctor/DoctorMain" : "/patient/TaskInfoScreen";
-            router.push(targetRoute);
-          } else {
-            router.push("/authorize");
-          }
-        }
+          else router.push("/authorize");
+        } else router.push("/patient/TaskInfoScreen");
       } catch (error) {
-        console.error("Error checking network or role:", error);
+        console.log("Error checking network or role:", error);
         router.push("/authorize");
       }
     };
