@@ -1,8 +1,17 @@
 import * as SecureStore from "expo-secure-store";
+import api from "@/scripts/api";
 
 const storeTokenInSecureStore = async (key, token) => {
   try {
     await SecureStore.setItemAsync(key, token);
+    try {
+      const response = await api.getUserRole();
+      if (response) {
+        await SecureStore.setItemAsync('role', `${response}`);
+      }
+    } catch (error) {
+      console.error("Error getting user role:", error);
+    }
   } catch (error) {
     console.log("Ошибка сохранения токенов в SecureStore:", error);
   }
@@ -26,8 +35,18 @@ const deleteTokenFromSecureStore = async (key) => {
   }
 };
 
+const getRoleFromSecureStore = async () => {
+  try {
+    const role = await SecureStore.getItemAsync('role');
+    if (role) return role;
+  } catch (error) {
+    console.log("Ошибка при получении роли из SecureStore:", error);
+  }
+};
+
 export {
   storeTokenInSecureStore,
   getTokenFromSecureStore,
   deleteTokenFromSecureStore,
+  getRoleFromSecureStore
 };
