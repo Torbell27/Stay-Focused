@@ -15,7 +15,7 @@ const PatientInfo = () => {
     lastname: string;
     login: string;
     email: string;
-    id: string;
+    patientId: string;
   }>();
 
   const {
@@ -24,10 +24,11 @@ const PatientInfo = () => {
     lastname = "",
     login = "",
     email = "",
+    patientId = "",
   } = params;
 
   const handlePatientStatistics = () => {
-    router.push("/doctor/StatisticsScreen");
+    router.push({ pathname: "/doctor/StatisticsScreen", params });
   };
 
   const handlePatientAssignments = () => {

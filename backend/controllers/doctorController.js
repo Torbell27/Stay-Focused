@@ -1,4 +1,5 @@
 import pool from "../config/db.js";
+import { createPdfDocument } from "../utilities/createPdfDocument.js";
 
 export const get = async (req, res, next) => {
   try {
@@ -53,6 +54,44 @@ export const getPatients = async (req, res, next) => {
   }
 }; */
 
+export const getStatisticsFile = async (req, res) => {
+  const { patientId, startDate, endDate } = req.query;
+  console.log(
+    "Получение статистики для пользователя:",
+    patientId,
+    startDate,
+    endDate
+  );
+
+  try {
+    await pool.query(`SET app.user_uuid = '${patientId}'`);
+
+    const request = await pool.query(
+      "SELECT * FROM fetch_user_stat($1, $2, $3);",
+      [patientId, startDate, endDate]
+    );
+
+    const userStatistics = request.rows;
+    console.log(request);
+    if (userStatistics.length > 0) {
+      const pdf = await createPdfDocument(userStatistics);
+
+      res.writeHead(200, {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": "attachment; filename=statistics.pdf",
+        "Content-Length": Buffer.byteLength(pdf),
+      });
+
+      res.end(pdf);
+    } else {
+      return res.status(404).json({ detail: "Statistic does not exist" });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ detail: "Server error" });
+  }
+};
+
 export const registerPatient = async (req, res, next) => {
   try {
     const { username, password, email, firstName, secondName, patronymic } =
@@ -66,6 +105,7 @@ export const registerPatient = async (req, res, next) => {
     );
 
     const result = request.rows[0].user_register;
+    console.log(result);
     if (result === "Error: User with this login or email already exists")
       return res
         .status(400)

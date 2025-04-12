@@ -17,12 +17,12 @@ const TaskSettings = () => {
     firstname = "",
     surname = "",
     lastname = "",
-    id = "",
+    patientId = "",
   } = useLocalSearchParams<{
     firstname: string;
     surname: string;
     lastname: string;
-    id: string;
+    patientId: string;
   }>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -30,7 +30,7 @@ const TaskSettings = () => {
 
   useEffect(() => {
     api
-      .getPatientActivity(id)
+      .getPatientActivity(patientId)
       .then((response) => {
         if (response?.activity) loadData(response.activity);
         else
@@ -67,7 +67,7 @@ const TaskSettings = () => {
 
   const handleSave = () => {
     if (level) {
-      api.putPatientActivity(id, {
+      api.putPatientActivity(patientId, {
         level: parseInt(level),
         tap_count:
           level === "1"
@@ -82,7 +82,6 @@ const TaskSettings = () => {
   return (
     <View style={styles.container}>
       <Header title={headerUserName} />
-
       <LoadingModal visible={isLoading} />
 
       {!isLoading && (
@@ -118,7 +117,6 @@ const TaskSettings = () => {
           )}
         </View>
       )}
-
       <Footer
         components={[
           <FooterButton onPress={handleSave} label="Сохранить" key="1" />,

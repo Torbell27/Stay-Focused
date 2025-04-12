@@ -3,6 +3,7 @@ import {
   storeTokenInSecureStore,
   getTokenFromSecureStore,
 } from "@/scripts/jwt";
+import { Buffer } from "buffer";
 import * as Crypto from "expo-crypto";
 
 const api = axios.create({
@@ -39,7 +40,11 @@ api.interceptors.response.use(
         return api.request(error.config);
       }
     } else {
-      if (axios.isAxiosError(error)) throw new Error(error.response?.status);
+      if (axios.isAxiosError(error)) {
+        const axErr = new Error(error.message);
+        axErr.status = error.status;
+        throw axErr;
+      }
       throw new Error("Неизвестная ошибка");
     }
     return Promise.reject(error);
@@ -94,6 +99,28 @@ export default {
   putPatientActivity: async (patientId, activity) => {
     const response = await api.put(`/doctor/activity/${patientId}`, {
       activity,
+    });
+    return response.data;
+  },
+
+  getStatisticsPdf: async (patientId, startDate, endDate) => {
+    const response = await api.get("/doctor/createPdf", {
+      params: {
+        patientId,
+        startDate,
+        endDate,
+      },
+      responseType: "arraybuffer",
+    });
+
+    const base64Data = Buffer.from(response.data, "binary").toString("base64");
+    return base64Data;
+  },
+
+  setStatistics: async (patientId, dates) => {
+    const response = await api.post("/patient/setAllStatistic", {
+      patientId,
+      dates,
     });
     return response.data;
   },
