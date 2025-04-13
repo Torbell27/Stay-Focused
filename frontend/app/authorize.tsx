@@ -99,7 +99,7 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({
         })
         .catch((error) => {
           setIsLoading(false);
-          setError(checkCode(error.message));
+          setError(checkCode(error.status.toString()));
         });
     } else {
       setIsLoading(false);
@@ -109,7 +109,7 @@ const AuthorizationForm: React.FC<RegistrationFieldsProps> = ({
 
   return (
     <View style={styles.container}>
-      <Header title={"Авторизация"} createBackButton={true} />
+      <Header title={"Авторизация"} createBackButton={false} />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.formContainer}

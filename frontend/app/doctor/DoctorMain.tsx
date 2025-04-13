@@ -13,6 +13,7 @@ import api from "@/scripts/api";
 import { checkCode } from "@/components/CheckErrorCode";
 import ModalWindow from "@/components/ModalWindow";
 import LoadingModal from "@/components/LoadingModal";
+import useHandleLogout from "@/hooks/useHandleLogout";
 
 type RegistrationData = {
   firstName: string;
@@ -25,7 +26,7 @@ type RegistrationData = {
 
 const DoctorMain: React.FC = () => {
   const router = useRouter();
-  const [headerUserName, setHeaderUserName] = useState<string>("Имя Ф. О.");
+  const [headerUserName, setHeaderUserName] = useState<string>("");
   const [selc, setSelc] = useState<string>("patient_list");
   const [isKeyboardVisible, setIsKeyboardVisible] = useState<boolean>(false);
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
@@ -56,7 +57,7 @@ const DoctorMain: React.FC = () => {
         }
       })
       .catch((error) => {
-        setError(checkCode(error.message));
+        setError(checkCode(error.status.toString()));
         console.error("Error getting user role:", error);
       });
   }, []);
@@ -131,9 +132,9 @@ const DoctorMain: React.FC = () => {
     }
   };
   const handleLogout = () => showModal("logout");
-  const handleLogoutConfirm = () => {
+  const handleLogoutConfirm = async () => {
     showModal(null);
-    router.back();
+    await useHandleLogout(router);
   };
 
   return (

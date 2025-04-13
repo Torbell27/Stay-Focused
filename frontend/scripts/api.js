@@ -6,6 +6,12 @@ import {
 import { Buffer } from "buffer";
 import * as Crypto from "expo-crypto";
 
+let unauthorizedHandler = async () => {};
+
+export function setUnauthorizedHandler(handler) {
+  unauthorizedHandler = handler;
+}
+
 const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
   headers: { "Content-Type": "application/json" },
@@ -38,7 +44,7 @@ api.interceptors.response.use(
       if (newAccessToken) {
         error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
         return api.request(error.config);
-      }
+      } else await unauthorizedHandler();
     } else {
       if (axios.isAxiosError(error)) {
         const axErr = new Error(error.message);
@@ -111,29 +117,28 @@ export default {
   },
 
   getStatisticsPdf: async (patientId, startDate, endDate) => {
-    const response = await api.get("/doctor/createPdf", {
-      params: {
-        patientId,
+    const response = await api.post(
+      `/statistic/file/${patientId}`,
+      {
         startDate,
         endDate,
       },
-      responseType: "arraybuffer",
-    });
+      { responseType: "arraybuffer" }
+    );
 
     const base64Data = Buffer.from(response.data, "binary").toString("base64");
     return base64Data;
   },
 
   sendStatisticsPdf: async (patientId, startDate, endDate, email, fullName) => {
-    const response = await api.post("/doctor/sendFileEmail", {
-        patientId,
-        startDate,
-        endDate,
-        email,
-        fullName
+    const response = await api.post(`/statistic/mail/${patientId}`, {
+      startDate,
+      endDate,
+      email,
+      fullName,
     });
 
-    console.log(response.data);
+    return response.data;
   },
 
   setStatistics: async (patientId, dates) => {
@@ -141,7 +146,7 @@ export default {
       patientId,
       dates,
     });
-    
+
     return response.data;
   },
 };

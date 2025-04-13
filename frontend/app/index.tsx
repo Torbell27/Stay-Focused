@@ -1,15 +1,13 @@
-import { Text, View, Button } from "react-native";
-import { useRouter } from "expo-router";
+import { View } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import * as Font from "expo-font";
-import checkInternetRole from '@/hooks/CheckInternetRole';
+import useCheckInternetRole from "@/hooks/useCheckInternetRole";
 
 export default function App() {
-  const router = useRouter();
   const [appIsReady, setAppIsReady] = useState(false);
 
-  checkInternetRole();
+  useCheckInternetRole();
 
   useEffect(() => {
     async function prepare() {
@@ -46,40 +44,6 @@ export default function App() {
         justifyContent: "center",
         alignItems: "center",
       }}
-    >
-      <Text>Stay Focused</Text>
-      <Text>👋</Text>
-
-      <View style={{ gap: 12 }}>
-        <Button
-          title="Страница авторизации"
-          onPress={() => router.push("/authorize")}
-        />
-        <Button
-          title="Главная страница врача / родителя"
-          onPress={() => router.push("/doctor/DoctorMain")}
-        />
-        <Button
-          title="Карточка пациента / ребёнка"
-          onPress={() => router.push("/doctor/PatientInfo")}
-        />
-        <Button
-          title="Статистика пациента / ребёнка"
-          onPress={() => router.push("/doctor/StatisticsScreen")}
-        />
-        <Button
-          title="Редактирование задания для пациента / ребёнка"
-          onPress={() => router.push("/doctor/TaskSettings")}
-        />
-        <Button
-          title="Окно с описанием заданий для пациента / ребёнка"
-          onPress={() => router.push("/patient/TaskInfoScreen")}
-        />
-        <Button
-          title="Окно с кнопкой для пациента / ребёнка"
-          onPress={() => router.push("/patient/TaskButtonScreen")}
-        />
-      </View>
-    </View>
+    ></View>
   );
 }

@@ -13,7 +13,8 @@ const showError = (message: string) => {
 
 export const handleGetStatistics = async (
   patientId: any,
-  dates: { start: string; end: string }
+  dates: { start: string; end: string },
+  fullName: string
 ) => {
   try {
     const statistics = await api.getStatisticsPdf(
@@ -30,10 +31,11 @@ export const handleGetStatistics = async (
         showError("Разрешение на доступ к файлам не получено");
         return;
       }
+      const filename = `Отчёт ${fullName} за ${dates.start} - ${dates.end}.pdf`;
 
       const newFileUri = await SAF.StorageAccessFramework.createFileAsync(
         permissions.directoryUri,
-        "statistics.pdf",
+        filename.replace(" ", "_"),
         "application/pdf"
       );
 

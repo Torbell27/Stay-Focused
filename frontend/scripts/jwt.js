@@ -19,19 +19,10 @@ const getTokenFromSecureStore = async (key) => {
 
 const deleteTokenFromSecureStore = async (key) => {
   try {
-    const token = await SecureStore.getItemAsync(key);
+    const token = await getTokenFromSecureStore(key);
     if (token) await SecureStore.deleteItemAsync(key);
   } catch (error) {
     console.log("Ошибка при удалении токена из SecureStore:", error);
-  }
-};
-
-const getRoleFromSecureStore = async () => {
-  try {
-    const role = await SecureStore.getItemAsync('role');
-    if (role) return role;
-  } catch (error) {
-    console.log("Ошибка при получении роли из SecureStore:", error);
   }
 };
 
@@ -39,5 +30,4 @@ export {
   storeTokenInSecureStore,
   getTokenFromSecureStore,
   deleteTokenFromSecureStore,
-  getRoleFromSecureStore
 };
