@@ -6,7 +6,6 @@ import {
   View,
   Animated,
   Easing,
-  TouchableWithoutFeedback,
 } from "react-native";
 import { Colors } from "@/constants/Colors";
 
@@ -29,7 +28,7 @@ const TextField: React.FC<Props> = (props) => {
     Animated.timing(focusAnim, {
       toValue: isActive ? 1 : 0,
       duration: 150,
-      easing: Easing.bezier(0.1, 0, 0.2, 1),
+      easing: Easing.bezier(0, 0, 0, 1),
       useNativeDriver: true,
     }).start();
   }, [isFocused, value]);
@@ -44,7 +43,7 @@ const TextField: React.FC<Props> = (props) => {
   }
 
   return (
-    <View>
+    <View style={{ position: "relative" }}>
       <TextInput
         style={[
           styles.input,
@@ -66,48 +65,46 @@ const TextField: React.FC<Props> = (props) => {
           onFocus?.(event);
         }}
       />
-      <TouchableWithoutFeedback onPress={() => inputRef.current?.focus()}>
-        <Animated.View
+      <Animated.View
+        style={[
+          styles.labelContainer,
+          {
+            transform: [
+              {
+                scale: focusAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [1, 0.75],
+                }),
+              },
+              {
+                translateY: focusAnim.interpolate({
+                  inputRange: [0, 2],
+                  outputRange: [15, -12],
+                }),
+              },
+              {
+                translateX: focusAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [-10, -100],
+                }),
+              },
+            ],
+          },
+        ]}
+      >
+        <Text
           style={[
-            styles.labelContainer,
+            styles.label,
             {
-              transform: [
-                {
-                  scale: focusAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1, 0.75],
-                  }),
-                },
-                {
-                  translateY: focusAnim.interpolate({
-                    inputRange: [0, 2],
-                    outputRange: [15, -12],
-                  }),
-                },
-                {
-                  translateX: focusAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [-10, -38],
-                  }),
-                },
-              ],
+              borderColor: borderColor,
+              color: textColor,
             },
           ]}
         >
-          <Text
-            style={[
-              styles.label,
-              {
-                borderColor: borderColor,
-                color: textColor,
-              },
-            ]}
-          >
-            {label}
-            {errorText ? "*" : ""}
-          </Text>
-        </Animated.View>
-      </TouchableWithoutFeedback>
+          {label}
+          {errorText ? "*" : ""}
+        </Text>
+      </Animated.View>
       {!!errorText && <Text style={styles.error}>{errorText}</Text>}
     </View>
   );
@@ -127,16 +124,13 @@ const styles = StyleSheet.create({
   },
   labelContainer: {
     position: "absolute",
-    minWidth: 150,
-    paddingLeft: 25,
-    flexDirection: "row",
-    alignItems: "center",
+    left: 25,
+    minWidth: 520,
+    pointerEvents: "none",
   },
   label: {
     fontFamily: "Montserrat-Regular",
     fontSize: 16,
-    minWidth: 160,
-    flexShrink: 1,
   },
   error: {
     marginTop: 4,

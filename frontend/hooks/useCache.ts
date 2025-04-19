@@ -1,5 +1,8 @@
 import NetInfo from "@react-native-community/netinfo";
-import * as SecureStore from "expo-secure-store";
+import {
+  storeTokenInSecureStore,
+  getTokenFromSecureStore,
+} from "@/scripts/jwt";
 
 const useCache = async (
   key: string,
@@ -8,7 +11,7 @@ const useCache = async (
 ) => {
   try {
     const state = await NetInfo.fetch();
-    const cached = await SecureStore.getItemAsync(key);
+    const cached = await getTokenFromSecureStore(key);
 
     let parsed;
     if (cached) parsed = JSON.parse(cached);
@@ -16,24 +19,28 @@ const useCache = async (
     if (
       state.isConnected &&
       state.isInternetReachable &&
-      (!parsed || Date.now() - parsed.timestamp > CACHE_EXPIRE)
+      (!parsed || new Date().getTime() - parsed.timestamp > CACHE_EXPIRE)
     ) {
-      const data = await apiFunc();
+      try {
+        const data = await apiFunc();
 
-      await SecureStore.setItemAsync(
-        key,
-        JSON.stringify({
-          data,
-          timestamp: Date.now(),
-        })
-      );
+        await storeTokenInSecureStore(
+          key,
+          JSON.stringify({
+            data,
+            timestamp: new Date().getTime(),
+          })
+        );
 
-      return data;
+        return data;
+      } catch (err) {
+        return parsed?.data || null;
+      }
     }
 
-    if (parsed) return parsed.data;
+    return parsed?.data || null;
   } catch (error) {
-    console.log("Error fetching data:", error);
+    return null;
   }
 };
 
