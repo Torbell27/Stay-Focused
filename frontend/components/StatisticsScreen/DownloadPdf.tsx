@@ -57,7 +57,7 @@ export const handleGetStatistics = async (
     } else if (error.status == "404") {
       showError("У данного пациента нет статистики");
     } else {
-      //console.log(error);
+      console.log(error);
       showError("Ошибка при скачивании статистики");
     }
   }

@@ -19,12 +19,12 @@ export const fetchUserStat = async (patientId, startDate, endDate) => {
 export const getStatistics = async (req, res, next) => {
   const { patientId } = req.params;
   const { startDate, endDate } = req.query;
-  //console.log(patientId, startDate, endDate);
+  console.log(patientId, startDate, endDate);
   try {
     const userStatistics = await fetchUserStat(patientId, startDate, endDate);
 
     if (userStatistics) {
-      //console.log(userStatistics);
+      console.log(userStatistics);
       return res.status(200).json(userStatistics);
     } else {
       return res.status(404).json({ detail: "Statistic does not exist" });

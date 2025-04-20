@@ -154,7 +154,7 @@ export default function ButtonPage() {
           JSON.stringify(existingData)
         );
 
-        //console.log(JSON.stringify(existingData));
+        console.log(JSON.stringify(existingData));
       }
     };
     const checkSeries = () => {
@@ -169,7 +169,7 @@ export default function ButtonPage() {
           setStatus("Завершено");
           saveSeries(tapState, level);
         }
-        //console.log(tapState);
+        console.log(tapState);
         setTapState((prev) => ({
           ...prev,
           currentMode: "idle",
@@ -186,7 +186,7 @@ export default function ButtonPage() {
         tapState.firstSeries.lastTap &&
         now - tapState.firstSeries.lastTap > 20000
       ) {
-        //console.log(tapState);
+        console.log(tapState);
         setStatus("Завершено");
         saveSeries(tapState, level);
         setTapState((prev) => ({
@@ -204,7 +204,7 @@ export default function ButtonPage() {
         tapState.secondSeries.lastTap &&
         now - tapState.secondSeries.lastTap > 10000
       ) {
-        //console.log(tapState);
+        console.log(tapState);
         setStatus("Завершено");
         saveSeries(tapState, level);
         setTapState({
