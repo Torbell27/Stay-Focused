@@ -83,20 +83,29 @@ export const getStatisticsFile = async (req, res, next) => {
   }
 };
 
+const utcToLocale = (date, timezone) => {
+  const currentDate = new Date(date);
+  const newDate = new Date(currentDate.getTime() - timezone * 60 * 1000);
+  return newDate.toISOString().split("T")[0];
+};
+
 export const sendFileEmail = async (req, res, next) => {
   try {
-    const { startDate, endDate, email, fullName } = req.body;
+    const { startDate, endDate, email, fullName, timezone } = req.body;
     const { patientId } = req.params;
 
     const pdf = await getPDF(patientId, startDate, endDate);
 
     if (pdf) {
       try {
-        const filename = `Отчёт ${fullName} за ${startDate} - ${endDate}.pdf`;
+        const start = utcToLocale(startDate, timezone);
+        const end = utcToLocale(endDate, timezone);
+
+        const filename = `Отчёт ${fullName} за ${start} - ${end}.pdf`;
 
         await sendEmailWithAttachment({
           to: email,
-          subject: `Отчёт ${fullName} за ${startDate} - ${endDate}`,
+          subject: `Отчёт ${fullName} за ${start} - ${end}`,
           text: "",
           attachment: {
             filename: filename.replaceAll(" ", "_"),
