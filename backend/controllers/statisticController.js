@@ -1,8 +1,9 @@
 import pool from "../config/db.js";
 import { createPdfDocument } from "../utilities/createPdfDocument.js";
 import { sendEmailWithAttachment } from "../utilities/emailSender.js";
+import userStatToLocale from "../utilities/userStatToLocale.js";
 
-const fetchUserStat = async (patientId, startDate, endDate) => {
+export const fetchUserStat = async (patientId, startDate, endDate) => {
   await pool.query(`SET app.user_uuid = '${patientId}'`);
 
   const request = await pool.query(
@@ -11,7 +12,8 @@ const fetchUserStat = async (patientId, startDate, endDate) => {
   );
 
   const userStatistics = request.rows;
-  if (userStatistics.length > 0) return userStatistics;
+  if (userStatistics.length > 0) return userStatToLocale(userStatistics);
+  return null;
 };
 
 export const getStatistics = async (req, res, next) => {

@@ -26,7 +26,9 @@ function getCurrentHour(now: number) {
 function getSecondsSinceMidnight(now: number) {
   const nowUnix = new Date(now);
   return (
-    nowUnix.getHours() * 3600 + nowUnix.getMinutes() * 60 + nowUnix.getSeconds()
+    nowUnix.getUTCHours() * 3600 +
+    nowUnix.getUTCMinutes() * 60 +
+    nowUnix.getUTCSeconds()
   );
 }
 
@@ -129,7 +131,7 @@ export default function ButtonPage() {
         );
         todayData = {
           date: startOfDayUnix,
-          level: level,
+          level: parseInt(level),
           time_stat: {},
         };
         existingData.push(todayData);
@@ -137,20 +139,21 @@ export default function ButtonPage() {
         // Для level 2 формируем массив нажатий
         const tapData =
           level === "1"
-            ? tapState.firstSeries.count
+            ? [tapState.firstSeries.count]
             : [tapState.firstSeries.count, tapState.secondSeries.count];
 
         // Добавляем данные
         todayData.time_stat[currentHour] = {
           timestamp_start: timestampStart,
           tap_count: tapData,
+          patient_timezone: new Date().getTimezoneOffset(),
         };
 
         await SecureStore.setItemAsync(
           TASK_CACHE_KEY,
           JSON.stringify(existingData)
         );
-        // await SecureStore.deleteItemAsync(TASK_CACHE_KEY);
+
         console.log(JSON.stringify(existingData));
       }
     };
@@ -266,7 +269,7 @@ const styles = StyleSheet.create({
     color: Colors.headerText,
   },
   lowerText: {
-    fontSize: 22,
+    fontSize: 18,
     fontFamily: "Montserrat-ExtraBold",
     textAlign: "center",
     marginTop: 4,

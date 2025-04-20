@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Pressable,
+  RefreshControl,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import Header from "@/components/Header";
@@ -24,7 +26,6 @@ import LoadingModal from "@/components/LoadingModal";
 import Footer from "@/components/Footer";
 import FooterButton from "@/components/FooterButton";
 import TextField from "@/components/TextInputCustom";
-import { Pressable } from "react-native";
 
 interface TimeStatistics {
   timestamp_start: number;
@@ -51,19 +52,6 @@ const StatisticsScreen: React.FC = () => {
     patientId: string;
   }>();
 
-  function formatDate(date: string): string {
-    return date.split("-").reverse().join(".");
-  }
-
-  const dateNow = new Date();
-  const startDate = new Date(dateNow);
-  startDate.setMonth(dateNow.getMonth() - 1);
-
-  const [dates, setDates] = useState({
-    start: startDate.toISOString().split("T")[0],
-    end: dateNow.toISOString().split("T")[0],
-  });
-
   const {
     firstname = "",
     surname = "",
@@ -88,45 +76,92 @@ const StatisticsScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingStatistics, setIsLoadingStatistics] =
     useState<boolean>(false);
-  const [tempDates, setTempDates] = useState(dates);
 
-  useEffect(() => {
+  const delTime = (date: Date): string => {
+    return date.toISOString().split("T")[0];
+  };
+
+  const formatDate = (date: string): string => {
+    return date.split("-").reverse().join(".");
+  };
+
+  const formatStatDate = (date: string): string => {
+    const currentDate = new Date(date);
+    return formatDate(delTime(new Date(currentDate.getTime() + 180 * 60000)));
+  };
+
+  const dateToUTC = (dateString: string) => {
+    const date = new Date(dateString);
+    const utcDate = new Date(date.getTime() - 180 * 60000);
+    return utcDate.toISOString();
+  };
+
+  const dateNow = new Date();
+  const startDate = new Date(dateNow);
+  startDate.setMonth(dateNow.getMonth() - 1);
+
+  const [dates, setDates] = useState<Record<"start" | "end", string>>({
+    start: delTime(startDate),
+    end: delTime(dateNow),
+  });
+
+  const [datesInner, setDatesInner] = useState<Record<"start" | "end", string>>(
+    {
+      start: dateToUTC(delTime(startDate)),
+      end: dateToUTC(delTime(dateNow)),
+    }
+  );
+
+  const fetchStatistic = () => {
     setIsLoadingStatistics(true);
+    setStatisticsData([]);
     api
       .doctorData()
       .then((user) => {
         setEmail(user.email);
-        return api.getStatistics(patientId, dates.start, dates.end);
+        return api.getStatistics(patientId, datesInner.start, datesInner.end);
       })
       .then((statisticsResponse) => {
-        setStatisticsData(statisticsResponse);
+        setStatisticsData(
+          statisticsResponse.sort((a: DateStatistics, b: DateStatistics) =>
+            a.date.localeCompare(b.date)
+          )
+        );
         setIsLoadingStatistics(false);
       })
-      .catch((err) => {
-        console.log(err);
+      .catch(() => {
         setIsLoadingStatistics(false);
       });
-  }, [dates]);
+  };
+
+  useEffect(() => {
+    fetchStatistic();
+  }, [datesInner]);
 
   const handleDateSelect = (selectedDate: string, type: "start" | "end") => {
-    setTempDates((prev) => ({
+    setDates((prev) => ({
       ...prev,
       [type]: selectedDate,
     }));
+
+    setDatesInner((prev) => ({
+      ...prev,
+      [type]: dateToUTC(selectedDate),
+    }));
+  };
+
+  const formatTime = (timestamp: number) => {
+    const hours = Math.floor(timestamp / 3600);
+    const hoursString = hours.toString().padStart(2, "0");
+    const minutes = Math.floor((timestamp / 60) % 60);
+    const minutesString = minutes.toString().padStart(2, "0");
+    return `${hoursString}:${minutesString}`;
   };
 
   const handleChange = (email: string) => {
     if (filterEmailText(email)) {
       setEmail(email);
     }
-  };
-
-  const formatTime = (timestamp: number) => {
-    const hours = Math.floor(timestamp / 3600).toString();
-    const minutes = Math.floor((timestamp % 3600) / 60)
-      .toString()
-      .padStart(2, "0");
-    return `${hours}:${minutes}`;
   };
 
   const handleSendPress = () => {
@@ -144,7 +179,12 @@ const StatisticsScreen: React.FC = () => {
   const handleConfirmSend = async () => {
     try {
       setIsLoading(true);
-      await handleSendStatistics(patientId, dates, _email, formattedFirstName);
+      await handleSendStatistics(
+        patientId,
+        datesInner,
+        _email,
+        formattedFirstName
+      );
       setModalMessage(`Отправлено на почту ${_email}`);
       setModalType("information");
     } catch (err) {
@@ -167,10 +207,10 @@ const StatisticsScreen: React.FC = () => {
     const startStr = range.start.split("T")[0];
     const endStr = range.end.split("T")[0];
 
-    let current = new Date(startDate);
+    const current = new Date(startDate);
 
     while (current <= endDate) {
-      const dateStr = current.toISOString().split("T")[0];
+      const dateStr = delTime(current);
 
       if (dateStr === startStr) {
         markedDates[dateStr] = {
@@ -226,7 +266,15 @@ const StatisticsScreen: React.FC = () => {
           </View>
         </View>
 
-        <ScrollView style={styles.statistics}>
+        <ScrollView
+          style={styles.statistics}
+          refreshControl={
+            <RefreshControl
+              refreshing={isLoadingStatistics}
+              onRefresh={fetchStatistic}
+            />
+          }
+        >
           {isLoadingStatistics ? (
             <ActivityIndicator size="large" color={Colors.main} />
           ) : !isLoadingStatistics && statisticsData.length === 0 ? (
@@ -234,14 +282,13 @@ const StatisticsScreen: React.FC = () => {
               Нет данных за выбранный период
             </Text>
           ) : (
-            statisticsData.map(({ date, data }) => {
-              date = formatDate(date.slice(0, 10));
+            statisticsData.map(({ date: unformattedDate, data }) => {
+              const date = formatStatDate(unformattedDate);
               const timeStat = data?.time_stat ?? {};
               const firstKey = Object.keys(timeStat)[0];
               const tapCount = firstKey
                 ? timeStat[firstKey]?.tap_count
                 : undefined;
-              console.log("tap", tapCount);
               return (
                 <TaskScheduleItem
                   key={date}
@@ -297,7 +344,7 @@ const StatisticsScreen: React.FC = () => {
             label="Скачать статистику"
             iconName="download"
             onPress={() =>
-              handleGetStatistics(patientId, dates, formattedFirstName)
+              handleGetStatistics(patientId, datesInner, formattedFirstName)
             }
           />,
         ]}
@@ -319,7 +366,6 @@ const StatisticsScreen: React.FC = () => {
         <Pressable
           style={styles.modalOverlay}
           onPress={() => {
-            setTempDates(dates);
             setShowCalendar(null);
           }}
         >
@@ -328,10 +374,10 @@ const StatisticsScreen: React.FC = () => {
               key={showCalendar}
               markingType={"period"}
               current={showCalendar === "start" ? dates.start : dates.end}
-              onDayPress={(day: { dateString: string }) =>
-                handleDateSelect(day.dateString, showCalendar)
-              }
-              markedDates={getMarkedDates(tempDates)}
+              onDayPress={(day: { dateString: string }) => {
+                handleDateSelect(day.dateString, showCalendar);
+              }}
+              markedDates={getMarkedDates(dates)}
               minDate={showCalendar === "end" ? dates.start : undefined}
               maxDate={showCalendar === "start" ? dates.end : undefined}
               theme={{
@@ -347,7 +393,6 @@ const StatisticsScreen: React.FC = () => {
               activeOpacity={0.9}
               style={styles.closeButton}
               onPress={() => {
-                setDates(tempDates);
                 setShowCalendar(null);
               }}
             >
@@ -397,37 +442,7 @@ const styles = StyleSheet.create({
     color: Colors.headerText,
     fontFamily: "Montserrat-Regular",
   },
-  statistics: { flex: 1 },
-  dateContainer: { marginBottom: 16 },
-  dateHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 10,
-  },
-  dateTitle: {
-    fontSize: 24,
-    fontFamily: "Montserrat-Bold",
-    color: Colors.main,
-  },
-  timeItem: {
-    padding: 10,
-    backgroundColor: Colors.primary,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  timeHeader: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
-  timeText: {
-    fontSize: 16,
-    fontFamily: "Montserrat-Bold",
-    color: Colors.headerText,
-    marginRight: 10,
-  },
-  seriesText: {
-    fontSize: 16,
-    fontFamily: "Montserrat-Regular",
-    color: Colors.headerText,
-    marginBottom: 4,
-  },
+  statistics: { flex: 1, height: "100%" },
   modalOverlay: {
     position: "absolute",
     width: "100%",
@@ -437,7 +452,8 @@ const styles = StyleSheet.create({
   modalContent: {
     elevation: 10,
     borderRadius: 10,
-    width: "80%",
+    width: "auto",
+    height: "auto",
     backgroundColor: Colors.primary,
     padding: 16,
     marginVertical: "auto",
@@ -463,11 +479,6 @@ const styles = StyleSheet.create({
     width: 80,
   },
   closeButtonText: { color: Colors.primary, fontSize: 16 },
-  noDataContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 20,
-  },
   noDataText: {
     paddingTop: 10,
     fontSize: 16,
