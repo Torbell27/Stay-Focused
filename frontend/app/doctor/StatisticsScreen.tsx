@@ -344,7 +344,12 @@ const StatisticsScreen: React.FC = () => {
             label="Скачать статистику"
             iconName="download"
             onPress={() =>
-              handleGetStatistics(patientId, datesInner, formattedFirstName)
+              handleGetStatistics(
+                patientId,
+                dates,
+                datesInner,
+                formattedFirstName
+              )
             }
           />,
         ]}

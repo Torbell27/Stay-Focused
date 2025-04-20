@@ -14,13 +14,14 @@ const showError = (message: string) => {
 export const handleGetStatistics = async (
   patientId: any,
   dates: { start: string; end: string },
+  datesInner: { start: string; end: string },
   fullName: string
 ) => {
   try {
     const statistics = await api.getStatisticsPdf(
       patientId,
-      dates.start,
-      dates.end
+      datesInner.start,
+      datesInner.end
     );
 
     if (statistics) {
@@ -35,7 +36,7 @@ export const handleGetStatistics = async (
 
       const newFileUri = await SAF.StorageAccessFramework.createFileAsync(
         permissions.directoryUri,
-        filename.replace(" ", "_"),
+        filename.replaceAll(" ", "_"),
         "application/pdf"
       );
 
