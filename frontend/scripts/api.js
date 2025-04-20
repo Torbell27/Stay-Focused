@@ -154,7 +154,7 @@ export default {
   },
 
   getStatistics: async (patientId, startDate, endDate) => {
-    console.log(patientId, startDate, endDate);
+    //console.log(patientId, startDate, endDate);
     const response = await api.get(`/statistic/get/${patientId}`, {
       params: { startDate, endDate },
     });

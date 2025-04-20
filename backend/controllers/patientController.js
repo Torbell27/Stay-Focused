@@ -74,7 +74,7 @@ export const setAllStatistic = async (req, res, next) => {
 
           if (elem.date !== current_date) {
             if (i !== 0) {
-              console.log(stats);
+              //console.log(stats);
               if (checkDateStatisticNotExist(elem.date, patientId)) {
                 await pool.query(query, [
                   patientId,
@@ -98,7 +98,7 @@ export const setAllStatistic = async (req, res, next) => {
           };
 
           if (i === data.length - 1) {
-            console.log(stats);
+            //console.log(stats);
             if (checkDateStatisticNotExist(elem.date, patientId)) {
               await pool.query(query, [
                 patientId,
