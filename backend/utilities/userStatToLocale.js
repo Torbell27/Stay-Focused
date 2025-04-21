@@ -42,26 +42,13 @@ const userStatToLocale = (userStatistics, startDate, endDate) => {
             date: dateWithOffset,
             data: { time_stat: objectToSave },
           });
-        else
-          result[searchIndex] = {
-            date: dateWithOffset,
-            data: {
-              ...data,
-              time_stat: {
-                ...result[searchIndex].data.time_stat,
-                ...objectToSave,
-              },
-            },
-          };
+        else result[searchIndex].data.time_stat[k] = objectToSave[k];
       } else newTimeStat[k] = objectToSave[k];
     });
 
-    result[index] = {
-      date,
-      data: {
-        ...data,
-        time_stat: { ...result[index].data.time_stat, ...newTimeStat },
-      },
+    result[index].data.time_stat = {
+      ...result[index].data.time_stat,
+      ...newTimeStat,
     };
   });
 
