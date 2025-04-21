@@ -30,18 +30,21 @@ const userStatToLocale = (userStatistics, startDate, endDate) => {
 
       if (Math.abs(offset) >= oneDayInMilliseconds) {
         const dateWithOffset = new Date(date);
-        dateWithOffset.setTime(dateWithOffset.getTime() + offset);
-        const cleanDate = new Date(dateWithOffset.toISOString().split("T")[0]);
-        cleanDate.setUTCHours(21);
+        dateWithOffset.setTime(
+          dateWithOffset.getTime() + oneDayInMilliseconds * Math.sign(offset)
+        );
 
         delete data.time_stat[k];
 
-        const searchIndex = searchDate(cleanDate);
+        const searchIndex = searchDate(dateWithOffset);
         if (searchIndex === -1)
-          result.push({ date: cleanDate, data: { time_stat: objectToSave } });
+          result.push({
+            date: dateWithOffset,
+            data: { time_stat: objectToSave },
+          });
         else
           result[searchIndex] = {
-            date: cleanDate,
+            date: dateWithOffset,
             data: {
               ...data,
               time_stat: {
