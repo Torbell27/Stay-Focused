@@ -45,11 +45,13 @@ export const createPdfDocument = async (data) => {
 
     data.stat_data.forEach((item) => {
       // Дата статистики
+      const newDate = new Date(item.date);
+      newDate.setTime(newDate.getTime() + 180 * 60000);
       doc
         .font("OpenSans")
         .fontSize(14)
         .fillColor("#2c3e50")
-        .text(`Дата: ${item.date.toLocaleDateString("ru-RU")}`)
+        .text(`Дата: ${newDate.toLocaleDateString("ru-RU")}`)
         .moveDown(0.5);
 
       const bullet = "•";
