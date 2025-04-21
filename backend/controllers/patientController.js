@@ -122,7 +122,12 @@ export const setAllStatistic = async (req, res, next) => {
 const checkDateStatisticNotExist = async (date, patientId) => {
   try {
     const curDate = numToISOString(date);
-    const userStatistics = await fetchUserStat(patientId, curDate, curDate);
+    const userStatistics = await fetchUserStat(
+      patientId,
+      curDate,
+      curDate,
+      false
+    );
     return !userStatistics;
   } catch (err) {
     return false;
