@@ -3,7 +3,12 @@ import { createPdfDocument } from "../utilities/createPdfDocument.js";
 import { sendEmailWithAttachment } from "../utilities/emailSender.js";
 import userStatToLocale from "../utilities/userStatToLocale.js";
 
-export const fetchUserStat = async (patientId, startDate, endDate) => {
+export const fetchUserStat = async (
+  patientId,
+  startDate,
+  endDate,
+  locale = true
+) => {
   await pool.query(`SET app.user_uuid = '${patientId}'`);
 
   const request = await pool.query(
@@ -13,7 +18,9 @@ export const fetchUserStat = async (patientId, startDate, endDate) => {
 
   const userStatistics = request.rows;
   if (userStatistics.length > 0)
-    return userStatToLocale(userStatistics, startDate, endDate);
+    return locale
+      ? userStatToLocale(userStatistics, startDate, endDate)
+      : userStatistics;
   return null;
 };
 
@@ -35,7 +42,7 @@ export const getStatistics = async (req, res, next) => {
   }
 };
 
-const getPDF = async (patientId, startDate, endDate) => {
+const getPDF = async (patientId, startDate, endDate, timezone) => {
   const request_stat = await fetchUserStat(patientId, startDate, endDate);
 
   if (request_stat) {
@@ -50,6 +57,7 @@ const getPDF = async (patientId, startDate, endDate) => {
         surname: request_meta.rows[0].surname,
         lastname: request_meta.rows[0].lastname,
         creationDate: new Date(),
+        timezone,
       };
 
       const userStatistics = {
@@ -64,9 +72,9 @@ const getPDF = async (patientId, startDate, endDate) => {
 
 export const getStatisticsFile = async (req, res, next) => {
   try {
-    const { startDate, endDate } = req.body;
+    const { startDate, endDate, timezone } = req.body;
     const { patientId } = req.params;
-    const pdf = await getPDF(patientId, startDate, endDate);
+    const pdf = await getPDF(patientId, startDate, endDate, timezone);
 
     if (pdf) {
       return res
@@ -95,7 +103,7 @@ export const sendFileEmail = async (req, res, next) => {
     const { startDate, endDate, email, fullName, timezone } = req.body;
     const { patientId } = req.params;
 
-    const pdf = await getPDF(patientId, startDate, endDate);
+    const pdf = await getPDF(patientId, startDate, endDate, timezone);
 
     if (pdf) {
       try {
