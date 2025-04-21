@@ -16,7 +16,7 @@ import { useRouter } from "expo-router";
 import api from "@/scripts/api";
 import useHandleLogout from "@/hooks/useHandleLogout";
 import useCache from "@/hooks/useCache";
-import * as SecureStore from "expo-secure-store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 
 type ActivityData = {
@@ -86,7 +86,7 @@ const TaskInfoScreen: React.FC = () => {
   };
 
   const sendSeries = async () => {
-    const seriesStr = await SecureStore.getItemAsync(TASK_CACHE_KEY);
+    const seriesStr = await AsyncStorage.getItem(TASK_CACHE_KEY);
     const state = await NetInfo.fetch();
     let parsed;
     if (seriesStr) parsed = JSON.parse(seriesStr);
@@ -106,7 +106,7 @@ const TaskInfoScreen: React.FC = () => {
         api
           .setStatistics(parsed)
           .then(async (response) => {
-            if (response) await SecureStore.deleteItemAsync(TASK_CACHE_KEY);
+            if (response) await AsyncStorage.removeItem(TASK_CACHE_KEY);
           })
           .catch(() => {});
       }
