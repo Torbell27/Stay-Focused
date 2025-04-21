@@ -4,9 +4,10 @@ import { ActionButton } from "@/components/TaskButtonScreen/ActionButton";
 import Header from "@/components/Header";
 import { Colors } from "@/constants/Colors";
 import { useLocalSearchParams } from "expo-router";
-import * as SecureStore from "expo-secure-store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const TASK_CACHE_KEY = "daily_tasks";
+const SERIES_COOLDOWN = 60; // in seconds
 
 function getStartOfDayUnix(now: number) {
   const nowUnix = new Date(now);
@@ -122,7 +123,7 @@ export default function ButtonPage() {
         const currentHour = getCurrentHour(now);
         const timestampStart = getSecondsSinceMidnight(now);
         // Получаем текущие данные
-        const existingDataStr = await SecureStore.getItemAsync(TASK_CACHE_KEY);
+        const existingDataStr = await AsyncStorage.getItem(TASK_CACHE_KEY);
         let existingData = existingDataStr ? JSON.parse(existingDataStr) : [];
 
         // Ищем или создаем запись за сегодня
@@ -149,7 +150,7 @@ export default function ButtonPage() {
           patient_timezone: new Date().getTimezoneOffset(),
         };
 
-        await SecureStore.setItemAsync(
+        await AsyncStorage.setItem(
           TASK_CACHE_KEY,
           JSON.stringify(existingData)
         );
@@ -163,7 +164,7 @@ export default function ButtonPage() {
       if (
         tapState.currentMode === "first" &&
         tapState.firstSeries.lastTap &&
-        now - tapState.firstSeries.lastTap > 10000
+        now - tapState.firstSeries.lastTap > SERIES_COOLDOWN * 1000
       ) {
         if (level === "1") {
           setStatus("Завершено");
@@ -184,7 +185,7 @@ export default function ButtonPage() {
         level === "2" &&
         tapState.currentMode === "idle" &&
         tapState.firstSeries.lastTap &&
-        now - tapState.firstSeries.lastTap > 20000
+        now - tapState.firstSeries.lastTap > SERIES_COOLDOWN * 2000
       ) {
         //console.log(tapState);
         setStatus("Завершено");
@@ -202,7 +203,7 @@ export default function ButtonPage() {
       if (
         tapState.currentMode === "second" &&
         tapState.secondSeries.lastTap &&
-        now - tapState.secondSeries.lastTap > 10000
+        now - tapState.secondSeries.lastTap > SERIES_COOLDOWN * 1000
       ) {
         //console.log(tapState);
         setStatus("Завершено");
@@ -216,7 +217,7 @@ export default function ButtonPage() {
       }
     };
 
-    const interval = setInterval(checkSeries, 5000);
+    const interval = setInterval(checkSeries, 500);
     return () => clearInterval(interval);
   }, [tapState]);
 
