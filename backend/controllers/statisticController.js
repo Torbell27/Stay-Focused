@@ -12,7 +12,8 @@ export const fetchUserStat = async (patientId, startDate, endDate) => {
   );
 
   const userStatistics = request.rows;
-  if (userStatistics.length > 0) return userStatToLocale(userStatistics);
+  if (userStatistics.length > 0)
+    return userStatToLocale(userStatistics, startDate, endDate);
   return null;
 };
 
