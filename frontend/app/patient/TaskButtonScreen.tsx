@@ -9,12 +9,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const TASK_CACHE_KEY = "daily_tasks";
 const SERIES_COOLDOWN = 60; // in seconds
 
-const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
-
 function getStartOfDayUnix(now: number) {
   const nowUnix = new Date(now);
-  nowUnix.setTime(nowUnix.getTime() - oneDayInMilliseconds);
-  nowUnix.setUTCHours(21, 0, 0, 0);
+  nowUnix.setUTCHours(0, 0, 0, 0);
   return Math.floor(nowUnix.getTime() / 1000);
 }
 
@@ -147,6 +144,7 @@ export default function ButtonPage() {
           timestamp_start: timestampStart,
           tap_count: tapData,
           patient_timezone: new Date().getTimezoneOffset(),
+          local_series_end: Date.now(),
         };
 
         await AsyncStorage.setItem(
