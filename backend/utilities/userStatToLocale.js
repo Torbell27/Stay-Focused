@@ -36,7 +36,7 @@ const userStatToLocale = (userStatistics, startDate, endDate) => {
         const uniqueId =
           Date.now().toString(36) + Math.random().toString(36).substring(2);
 
-        delete data.time_stat[k];
+        delete result[index].data.time_stat[k];
 
         const searchIndex = searchDate(dateWithOffset);
         if (searchIndex === -1) {
