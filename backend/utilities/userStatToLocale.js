@@ -14,8 +14,7 @@ const userStatToLocale = (userStatistics, startDate, endDate) => {
   userStatistics.forEach(({ date, data }, index) => {
     const newTimeStat = {};
     Object.entries(data.time_stat).forEach(([k, v]) => {
-      const objectToSave = {};
-      objectToSave[k] = {
+      const objectToSave = {
         ...v,
         timestamp_start: generateLocaleTimestamp(
           v.timestamp_start,
@@ -28,22 +27,27 @@ const userStatToLocale = (userStatistics, startDate, endDate) => {
       );
       const offset = newDate.getTime();
 
-      if (Math.abs(offset) >= oneDayInMilliseconds) {
+      if (offset >= oneDayInMilliseconds || offset < 0) {
         const dateWithOffset = new Date(date);
         dateWithOffset.setTime(
           dateWithOffset.getTime() + oneDayInMilliseconds * Math.sign(offset)
         );
 
+        const uniqueId =
+          Date.now().toString(36) + Math.random().toString(36).substring(2);
+
         delete data.time_stat[k];
 
         const searchIndex = searchDate(dateWithOffset);
-        if (searchIndex === -1)
-          result.push({
+        if (searchIndex === -1) {
+          const newObject = {
             date: dateWithOffset,
-            data: { time_stat: objectToSave },
-          });
-        else result[searchIndex].data.time_stat[k] = objectToSave[k];
-      } else newTimeStat[k] = objectToSave[k];
+            data: { time_stat: {} },
+          };
+          newObject.data.time_stat[uniqueId] = objectToSave;
+          result.push(newObject);
+        } else result[searchIndex].data.time_stat[uniqueId] = objectToSave;
+      } else newTimeStat[k] = objectToSave;
     });
 
     result[index].data.time_stat = {
