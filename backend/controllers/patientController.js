@@ -1,6 +1,7 @@
 import pool from "../config/db.js";
 import arraysEqual from "../utilities/arrayEquals.js";
 import { fetchUserStat } from "./statisticController.js";
+import generateLocaleTimestamp from "../utilities/generateLocaleTimestamp.js";
 
 export const get = async (req, res, next) => {
   try {
@@ -45,17 +46,16 @@ export const setAllStatistic = async (req, res, next) => {
         if (elem.level === activity.level) {
           const statObject = Object.values(elem.time_stat)[0];
 
-          const hours = `${Math.floor(
-            (statObject.timestamp_start - statObject.patient_timezone * 60) /
-              3600
-          )}`;
+          const localeTimestamp = generateLocaleTimestamp(
+            statObject.timestamp_start,
+            statObject.patient_timezone
+          );
+
+          const hours = `${Math.floor(localeTimestamp / 3600)}`;
 
           const in_time =
-            Math.floor(
-              ((statObject.timestamp_start - statObject.patient_timezone) %
-                3600) /
-                60
-            ) <= 30 && activity.selected_time.includes(hours);
+            Math.floor((localeTimestamp % 3600) / 60) <= 30 &&
+            activity.selected_time.includes(hours);
 
           let success = false;
 
@@ -122,7 +122,12 @@ export const setAllStatistic = async (req, res, next) => {
 const checkDateStatisticNotExist = async (date, patientId) => {
   try {
     const curDate = numToISOString(date);
-    const userStatistics = await fetchUserStat(patientId, curDate, curDate);
+    const userStatistics = await fetchUserStat(
+      patientId,
+      curDate,
+      curDate,
+      false
+    );
     return !userStatistics;
   } catch (err) {
     return false;

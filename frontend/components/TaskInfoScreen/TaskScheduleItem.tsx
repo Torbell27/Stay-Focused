@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { Colors } from "@/constants/Colors";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { pluralizeClicks } from "@/utils/pluralize";
 
 interface StatItem {
   timestamp_start: number;
@@ -90,16 +91,16 @@ const TaskScheduleItem: React.FC<TaskScheduleItemProps> = ({
             </View>
             {level === 1 ? (
               <Text style={styles.seriesText}>
-                1-ая серия: {stat!.tap_count} нажатий
+                1-ая серия: {pluralizeClicks(stat!.tap_count[0])}
               </Text>
             ) : (
               <>
                 <Text style={styles.seriesText}>
-                  1-ая серия: {stat!.tap_count[0] || 0} нажатий
+                  1-ая серия: {pluralizeClicks(stat!.tap_count[0] || 0)}
                 </Text>
                 {stat!.tap_count[1] !== undefined && (
                   <Text style={styles.seriesText}>
-                    2-ая серия: {stat!.tap_count[1]} нажатий
+                    2-ая серия: {pluralizeClicks(stat!.tap_count[1])}
                   </Text>
                 )}
               </>
@@ -109,29 +110,30 @@ const TaskScheduleItem: React.FC<TaskScheduleItemProps> = ({
     }
     const isTapCountArray = Array.isArray(tap_count);
     const levelTaskInfo = isTapCountArray ? 2 : 1;
-    const tapCounts = isTapCountArray ? tap_count : [tap_count];
-    if (!isStatisticsMode)
+    if (!isStatisticsMode && tap_count !== undefined) {
+      const tapCounts = isTapCountArray ? tap_count : [tap_count];
       return (
         <>
           {levelTaskInfo === 1 && (
             <Text style={styles.seriesText}>
-              1-ая серия: {tapCounts[0]} нажатий
+              1-ая серия: {pluralizeClicks(tapCounts[0])}
             </Text>
           )}
           {levelTaskInfo === 2 && (
             <>
               <Text style={styles.seriesText}>
-                1-ая серия: {tapCounts[0]} нажатий
+                1-ая серия: {pluralizeClicks(tapCounts[0])}
               </Text>
               {tapCounts.length > 1 && (
                 <Text style={styles.seriesText}>
-                  2-ая серия: {tapCounts[1]} нажатий
+                  2-ая серия: {pluralizeClicks(tapCounts[1])}
                 </Text>
               )}
             </>
           )}
         </>
       );
+    }
   };
 
   const getContentHeight = () => {

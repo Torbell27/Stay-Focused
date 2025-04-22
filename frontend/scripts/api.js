@@ -121,11 +121,13 @@ export default {
   },
 
   getStatisticsPdf: async (patientId, startDate, endDate) => {
+    const timezone = new Date().getTimezoneOffset();
     const response = await api.post(
       `/statistic/file/${patientId}`,
       {
         startDate,
         endDate,
+        timezone,
       },
       { responseType: "arraybuffer" }
     );
@@ -135,11 +137,13 @@ export default {
   },
 
   sendStatisticsPdf: async (patientId, startDate, endDate, email, fullName) => {
+    const timezone = new Date().getTimezoneOffset();
     const response = await api.post(`/statistic/mail/${patientId}`, {
       startDate,
       endDate,
       email,
       fullName,
+      timezone,
     });
 
     return response.data;

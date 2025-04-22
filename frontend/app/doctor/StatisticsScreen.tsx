@@ -5,7 +5,6 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  ActivityIndicator,
   Pressable,
   RefreshControl,
 } from "react-native";
@@ -97,6 +96,7 @@ const StatisticsScreen: React.FC = () => {
   };
 
   const dateNow = new Date();
+  dateNow.setTime(dateNow.getTime() - dateNow.getTimezoneOffset() * 60000);
   const startDate = new Date(dateNow);
   startDate.setMonth(dateNow.getMonth() - 1);
 
@@ -276,7 +276,7 @@ const StatisticsScreen: React.FC = () => {
           }
         >
           {isLoadingStatistics ? (
-            <ActivityIndicator size="large" color={Colors.main} />
+            <></>
           ) : !isLoadingStatistics && statisticsData.length === 0 ? (
             <Text style={styles.noDataText}>
               Нет данных за выбранный период
@@ -344,7 +344,12 @@ const StatisticsScreen: React.FC = () => {
             label="Скачать статистику"
             iconName="download"
             onPress={() =>
-              handleGetStatistics(patientId, datesInner, formattedFirstName)
+              handleGetStatistics(
+                patientId,
+                dates,
+                datesInner,
+                formattedFirstName
+              )
             }
           />,
         ]}

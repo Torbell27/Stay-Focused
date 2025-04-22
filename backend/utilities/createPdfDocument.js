@@ -19,6 +19,10 @@ export const createPdfDocument = async (data) => {
     doc.on("end", () => resolve(Buffer.concat(buffers)));
 
     const stat_meta = data.stat_meta;
+
+    stat_meta.creationDate.setTime(
+      stat_meta.creationDate.getTime() - stat_meta.timezone * 60 * 1000
+    );
     const formattedDate = stat_meta.creationDate.toLocaleDateString("ru-RU");
 
     const margin = doc.page.margins.left;
@@ -45,11 +49,13 @@ export const createPdfDocument = async (data) => {
 
     data.stat_data.forEach((item) => {
       // Дата статистики
+      const newDate = new Date(item.date);
+      newDate.setTime(newDate.getTime() + 180 * 60000);
       doc
         .font("OpenSans")
         .fontSize(14)
         .fillColor("#2c3e50")
-        .text(`Дата: ${item.date.toLocaleDateString("ru-RU")}`)
+        .text(`Дата: ${newDate.toLocaleDateString("ru-RU")}`)
         .moveDown(0.5);
 
       const bullet = "•";
