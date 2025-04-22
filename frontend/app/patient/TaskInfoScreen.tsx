@@ -85,33 +85,116 @@ const TaskInfoScreen: React.FC = () => {
     setRefreshing(false);
   };
 
+  type SeriesItem = {
+    date: number;
+    level: number;
+    time_stat: {
+      [key: string]: {
+        timestamp_start: number;
+        tap_count: number[];
+        patient_timezone: number;
+        local_series_end: number;
+      };
+    };
+  };
+
   const sendSeries = async () => {
-    const seriesStr = await AsyncStorage.getItem(TASK_CACHE_KEY);
-    const state = await NetInfo.fetch();
-    let parsed;
-    if (seriesStr) parsed = JSON.parse(seriesStr);
+    try {
+      const seriesStr = await AsyncStorage.getItem(TASK_CACHE_KEY);
+      if (!seriesStr) return;
 
-    if (parsed && Array.isArray(parsed)) {
-      const currentTimestamp = Math.floor(Date.now() / 1000);
-      const oneDayInSeconds = 24 * 60 * 60;
+      const state = await NetInfo.fetch();
+      if (!state.isConnected && !state.isInternetReachable) return;
 
-      const hasOldRecords = parsed.some((item) => {
-        if (item.date && typeof item.date === "number") {
-          return currentTimestamp - item.date >= oneDayInSeconds;
-        }
-        return false;
-      });
-      if (state.isConnected && state.isInternetReachable && hasOldRecords) {
-        //console.log(seriesStr);
-        api
-          .setStatistics(parsed)
-          .then(async (response) => {
-            if (response) await AsyncStorage.removeItem(TASK_CACHE_KEY);
-          })
-          .catch(() => {});
+      let parsed: SeriesItem[];
+      try {
+        parsed = JSON.parse(seriesStr);
+        if (!Array.isArray(parsed)) return;
+      } catch (e) {
+        return;
       }
+
+      // Группируем записи по локальной дате
+      const groupedByLocalDate: Record<string, SeriesItem[]> = parsed.reduce(
+        (groups, item) => {
+          if (!item.date || !item.time_stat) return groups;
+
+          const statValues = Object.values(item.time_stat);
+          if (statValues.length === 0) return groups;
+
+          const statObject = statValues[0];
+          if (!statObject) return groups;
+
+          // Рассчитываем локальную дату окончания серии
+          const localSeriesEnd = new Date(
+            statObject.local_series_end -
+              statObject.patient_timezone * 60 * 1000
+          );
+          const localDateKey = localSeriesEnd.toISOString().split("T")[0];
+
+          if (!groups[localDateKey]) {
+            groups[localDateKey] = [];
+          }
+          groups[localDateKey].push(item);
+          return groups;
+        },
+        {} as Record<string, SeriesItem[]>
+      );
+
+      let remainingData = [...parsed];
+
+      for (const [localDateKeyStr, currentItems] of Object.entries(
+        groupedByLocalDate
+      )) {
+        // Проверяем, не является ли дата сегодняшней
+        const isFuture = currentItems.some((item) => {
+          const now = new Date();
+          now.setTime(
+            now.getTime() -
+              Object.values(item.time_stat)[0].patient_timezone * 60 * 1000
+          );
+          const nowStr = now.toISOString().split("T")[0];
+          return nowStr !== localDateKeyStr;
+        });
+        if (!isFuture) continue;
+
+        const minDateInGroup = Math.min(
+          ...currentItems.map((item) => item.date)
+        );
+
+        // Создаем новые записи с одинаковой (минимальной) датой
+        const transformedItems = currentItems.map((item) => ({
+          ...item,
+          date: minDateInGroup,
+        }));
+
+        try {
+          const response = await api.setStatistics(transformedItems);
+          if (response) {
+            remainingData = remainingData.filter(
+              (item) => !currentItems.includes(item)
+            );
+          }
+        } catch (error) {
+          console.error(
+            `Failed to send data for date ${localDateKeyStr}:`,
+            error
+          );
+        }
+      }
+
+      // Обновляем кеш
+      if (remainingData.length > 0)
+        await AsyncStorage.setItem(
+          TASK_CACHE_KEY,
+          JSON.stringify(remainingData)
+        );
+      else await AsyncStorage.removeItem(TASK_CACHE_KEY);
+    } catch (error) {
+      console.error("Error in sendSeries:", error);
     }
   };
+
   useEffect(() => {
     fetchData();
   }, []);
