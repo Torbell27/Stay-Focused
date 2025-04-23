@@ -13,6 +13,8 @@ const userStatToLocale = (userStatistics, startDate, endDate) => {
 
   userStatistics.forEach(({ date, data }, index) => {
     const newTimeStat = {};
+    const isUTCDayChanged = !!data.is_utc_day_changed;
+
     Object.entries(data.time_stat).forEach(([k, v]) => {
       const objectToSave = {
         ...v,
@@ -22,12 +24,9 @@ const userStatToLocale = (userStatistics, startDate, endDate) => {
         ),
       };
 
-      const newDate = new Date(
-        (v.timestamp_start - v.patient_timezone * 60) * 1000
-      );
-      const offset = newDate.getTime();
+      const offset = (v.timestamp_start - v.patient_timezone * 60) * 1000;
 
-      if (offset >= oneDayInMilliseconds || offset < 0) {
+      if (offset >= oneDayInMilliseconds || (offset < 0 && !isUTCDayChanged)) {
         const dateWithOffset = new Date(date);
         dateWithOffset.setTime(
           dateWithOffset.getTime() + oneDayInMilliseconds * Math.sign(offset)

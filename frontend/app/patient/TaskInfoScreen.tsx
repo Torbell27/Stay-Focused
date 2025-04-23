@@ -88,6 +88,7 @@ const TaskInfoScreen: React.FC = () => {
   type SeriesItem = {
     date: number;
     level: number;
+    is_utc_day_changed: boolean;
     time_stat: {
       [key: string]: {
         timestamp_start: number;
@@ -175,6 +176,7 @@ const TaskInfoScreen: React.FC = () => {
             value.timestamp_start += item.date - minDateInGroup;
           else if (!isUTCDayChanged) value.timestamp_start -= 86400;
           item.date = minDateInGroup;
+          item.is_utc_day_changed = isUTCDayChanged;
           return item;
         });
 
