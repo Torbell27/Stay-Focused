@@ -80,13 +80,9 @@ const StatisticsScreen: React.FC = () => {
     return date.toISOString().split("T")[0];
   };
 
-  const formatDate = (date: string): string => {
-    return date.split("-").reverse().join(".");
-  };
-
   const formatStatDate = (date: string): string => {
     const currentDate = new Date(date);
-    return formatDate(delTime(currentDate));
+    return currentDate.toLocaleDateString("ru-RU");
   };
 
   const dateToUTC = (dateString: string) => {
@@ -115,11 +111,7 @@ const StatisticsScreen: React.FC = () => {
     setIsLoadingStatistics(true);
     setStatisticsData([]);
     api
-      .doctorData()
-      .then((user) => {
-        setEmail(user.email);
-        return api.getStatistics(patientId, datesInner.start, datesInner.end);
-      })
+      .getStatistics(patientId, datesInner.start, datesInner.end)
       .then((statisticsResponse) => {
         setStatisticsData(
           statisticsResponse.sort((a: DateStatistics, b: DateStatistics) =>
@@ -136,6 +128,17 @@ const StatisticsScreen: React.FC = () => {
   useEffect(() => {
     fetchStatistic();
   }, [datesInner]);
+
+  useEffect(() => {
+    api
+      .doctorData()
+      .then((user) => {
+        setEmail(user.email);
+      })
+      .catch(() => {
+        setIsLoadingStatistics(false);
+      });
+  }, []);
 
   const handleDateSelect = (selectedDate: string, type: "start" | "end") => {
     setDates((prev) => ({
@@ -248,7 +251,9 @@ const StatisticsScreen: React.FC = () => {
               style={styles.dateButton}
               onPress={() => setShowCalendar("start")}
             >
-              <Text style={styles.dateValue}>{formatDate(dates.start)}</Text>
+              <Text style={styles.dateValue}>
+                {formatStatDate(dates.start)}
+              </Text>
               <AntDesign name="calendar" size={20} color={Colors.headerText} />
             </TouchableOpacity>
           </View>
@@ -259,7 +264,7 @@ const StatisticsScreen: React.FC = () => {
               style={styles.dateButton}
               onPress={() => setShowCalendar("end")}
             >
-              <Text style={styles.dateValue}>{formatDate(dates.end)}</Text>
+              <Text style={styles.dateValue}>{formatStatDate(dates.end)}</Text>
               <AntDesign name="calendar" size={20} color={Colors.headerText} />
             </TouchableOpacity>
           </View>
@@ -301,7 +306,7 @@ const StatisticsScreen: React.FC = () => {
                     }))
                   }
                   date={date}
-                  level={Array.isArray(tapCount) ? 2 : undefined}
+                  level={tapCount ? tapCount.length : 1}
                   time_stat={timeStat}
                   formatTime={formatTime}
                 />
@@ -343,12 +348,7 @@ const StatisticsScreen: React.FC = () => {
             label="Скачать статистику"
             iconName="download"
             onPress={() =>
-              handleGetStatistics(
-                patientId,
-                dates,
-                datesInner,
-                formattedFirstName
-              )
+              handleGetStatistics(patientId, datesInner, formattedFirstName)
             }
           />,
         ]}
