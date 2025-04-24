@@ -37,15 +37,20 @@ export async function sendEmailWithAttachment({
     pass: process.env.SMTP_PASSWORD,
   };
 
+  const port =
+    process.env.SMTP_PORT !== undefined
+      ? parseInt(process.env.SMTP_PORT)
+      : undefined;
+
   const transporter = nodemailer.createTransport({
     auth,
-    host: "mail.cs.petrsu.ru",
-    port: 465,
+    host: process.env.SMTP_HOST,
+    port,
     secure: true,
   });
 
   const mailOptions = {
-    from: `"Stay Focused" <${auth.user}>`,
+    from: `"${process.env.SMTP_FROM}" <${auth.user}>`,
     to,
     subject,
     text,
