@@ -24,6 +24,7 @@
       "distribution": "internal"
     },
     "production": {
+      "autoIncrement": true,
       "android": {
         "image": "latest",
         "node": "22.14.0",
