@@ -7,7 +7,7 @@ import { useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const TASK_CACHE_KEY = "daily_tasks";
-const SERIES_COOLDOWN = 60; // in seconds
+const SERIES_COOLDOWN = 5; // in seconds
 
 function getStartOfDayUnix(now: number) {
   const nowUnix = new Date(now);
