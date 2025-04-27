@@ -152,10 +152,7 @@ const RegistrationForm: React.FC<RegistrationFieldsProps> = ({
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={styles.container}
-    >
+    <View style={styles.container}>
       <ScrollView>
         {renderInput("secondName", "Фамилия", filterNameText)}
         {renderInput("firstName", "Имя", filterNameText)}
@@ -165,7 +162,7 @@ const RegistrationForm: React.FC<RegistrationFieldsProps> = ({
         {renderInput("passwordRepeat", "Повторите пароль", filterPasswordText)}
         {renderInput("email", "Email", filterEmailText)}
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
