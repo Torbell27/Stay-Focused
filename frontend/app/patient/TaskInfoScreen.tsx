@@ -157,7 +157,7 @@ const TaskInfoScreen: React.FC = () => {
           const nowStr = now.toISOString().split("T")[0];
           return nowStr !== localDateKeyStr;
         });
-        if (!isFuture) continue;
+        //if (!isFuture) continue;
 
         const minDateInGroup = Math.min(
           ...currentItems.map((item) => item.date)
