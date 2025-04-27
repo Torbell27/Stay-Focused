@@ -3,8 +3,8 @@
     "name": "Stay Focused",
     "description": "Приложение помогает пациентам с СДВГ развивать самоконтроль и концентрацию через систему заданий с фиксированным графиком нажатий кнопки. Врач или родитель управляет доступом, уровнем сложности и анализирует статистику выполнения. Данные можно экспортировать в PDF.",
     "slug": "stay-focused",
-    "version": "1.0.0",
-    "owner": "mooncat3",
+    "version": "1.1.1",
+    "owner": "torbell",
     "orientation": "portrait",
     "icon": "./assets/images/favicon.png",
     "scheme": "adhd",
@@ -50,7 +50,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "5cd504be-af68-44e6-a23f-9f107e9c5b8c"
+        "projectId": "82a1b567-1e40-487f-9632-dbaac251eac2"
       }
     }
   }
